@@ -9,7 +9,7 @@ A useful way to think about them is:
 
 ## The basic architecture
 
-In a typical AI application, the model is only one component:
+In a typical AI application, the model is only one component. This simplified diagram shows where guardrails apply; the serving layers are shown in [AI Stack](AI_Stack.md).
 
 ```text
 User

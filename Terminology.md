@@ -1,15 +1,27 @@
 # Terminology
 
-The agentic AI space has grown rapidly and, like any other area of technology, has generated its own buzzwords and lingo. Before going further, we need to make sure everyone shares the same terminology.
+Common terms used in AI models, applications, inference serving, and infrastructure.
 
 ## Gen AI or Generative AI
 AI systems that generate new content, such as text, images, audio, video, code, or structured data. Large language models and diffusion models are common types of generative AI.
 
 ## Model
-A trained mathematical system that maps input to output using parameters learned from data. During inference, it uses those parameters to predict, generate, classify, or analyze. A model is distinct from the application or service used to access it; one model can be served by multiple inference servers or harnesses.
+A trained mathematical system that maps input to output using parameters learned from data. During inference, it uses those parameters to predict, generate, classify, or analyze. It is distinct from the application or service used to access it.
 
 ## LLM or Large Language Model
 A generative model trained primarily on text and code, usually to predict the next token in a sequence. It can be used for tasks such as question answering, writing, summarization, translation, and code generation.
+
+## Dense Model
+A model that generally uses all of its parameters for each token, rather than routing tokens to a subset of expert networks. Its total and active parameter counts are therefore approximately the same.
+
+## Mixture of Experts (MoE)
+A model architecture with multiple expert networks and a router that selects a subset for each token, alongside shared components. It can have far fewer active parameters per token than total parameters, while still requiring storage for the full set of weights across the serving hardware.
+
+## Total Parameters
+The count of all learned parameters in a model, including every expert in an MoE model. Together with storage precision or quantization format, it determines approximate weight storage, excluding runtime state.
+
+## Active Parameters
+The parameters used to process a particular token. In a routed MoE, this includes shared parameters and the selected experts, not every expert. Active parameter count alone does not predict memory requirements or performance; total weights, batching, memory bandwidth, communication, and implementation also matter.
 
 ## Diffusion Model
 A generative model that learns to reverse a process that adds noise to data. It commonly generates images, video, or audio by iteratively denoising a random-noise sample.
@@ -32,11 +44,23 @@ Instructions supplied by an application to guide a model's behavior, role, const
 ## Inference
 The process of running a trained model to produce an output from an input. For an LLM, generating a reply from a prompt is inference.
 
+## Inference API
+The interface through which a client sends requests to an inference server and receives results, optionally as a stream. It defines request and response formats, such as messages and generation options or model-specific input and output tensors.
+
+## Inference Engine
+The runtime that loads and executes a model on CPUs, GPUs, or other accelerators. It manages model memory and execution scheduling, including the KV cache and batching for LLMs.
+
 ## Inference Server
-Software that loads models and exposes inference through an API or another programmatic interface. It schedules requests and manages model memory, batching, and CPU, GPU, or accelerator resources. Examples include vLLM, llama.cpp server, OpenVINO Model Server, and Ollama.
+Software that exposes an inference API around an inference engine, handling requests and returning or streaming results. Server and engine responsibilities often overlap within a product. Examples include vLLM's API server, llama.cpp server, OpenVINO Model Server, and Ollama.
+
+## Inference Service
+A deployed endpoint backed by one or more inference server instances, accessed directly or through a gateway or router.
+
+## Serving / Orchestration Platform
+Software that deploys inference servers and manages their placement, scaling, routing, health checks, and rollouts across machines or clusters. Examples include KServe, Seldon, and Ray Serve.
 
 ## Harness
-The application layer that lets users or other software work with a model. It builds requests and may manage conversation history, prompts, tools, files, memory, permissions, and agent loops. Examples include chat applications, coding agents, and ComfyUI.
+The application layer that users and other software use to interact with AI services. It builds inference API requests and may manage conversation history, prompts, tools, files, memory, permissions, and agent loops. Examples include chat applications, coding agents, and ComfyUI.
 
 ## Agent
 A system in which a harness repeatedly calls a model, evaluates its output, and may execute model-selected tools to pursue a task. Agents can plan and take actions across multiple steps, but their autonomy, permissions, and stopping conditions are defined by the surrounding software. Not every customized chatbot is an agent.
@@ -49,6 +73,39 @@ A discrete unit produced by a model’s tokenizer and consumed or generated by t
 
 ## Context Window
 The maximum number of tokens a model can consider in one inference request. It includes the prompt, system instructions, conversation history, retrieved content, tool results, and usually the tokens reserved for the response. It is a capacity limit, not reliable long-term memory.
+
+## KV Cache
+Runtime attention state containing keys and values for previously processed tokens, reused during generation to avoid recomputation. Memory use depends on sequence length, concurrency, model architecture, and cache precision.
+
+## Prefill
+The inference phase that processes the prompt tokens and builds their KV cache, producing the information needed to generate the first output token. Prompt tokens can be processed in parallel or in chunks; longer prompts generally require more work, while prefix caching can reuse prior computation.
+
+## Decode
+The inference phase that generates subsequent output tokens using the growing context and KV cache. In standard autoregressive generation, each sequence advances one token at a time, though techniques such as speculative decoding can accept multiple tokens per step.
+
+## Batching
+Processing work from multiple requests together to use accelerator resources more efficiently. It can improve aggregate throughput, but waiting to form batches and sharing resources can increase per-request latency and memory use.
+
+## Continuous Batching
+An inference scheduling approach that adds requests to and removes completed requests from the active batch between execution steps, rather than waiting for the entire batch to finish.
+
+## Latency
+The elapsed time for a request or a defined part of it. End-to-end request latency runs from sending the request to receiving the complete response, including queueing, processing, and network time.
+
+## Time to First Token (TTFT)
+The time from submitting a request to receiving its first output token, including network and queueing delays, prompt processing, and first-token generation.
+
+## Inter-Token Latency (ITL)
+The elapsed time between successive output tokens during streaming, excluding the wait for the first token. Reported values depend on the measurement point, buffering, and the averages or percentiles used.
+
+## Tokens per Second (TPS)
+A token processing or generation rate. Per-request output TPS describes one request's generation speed; aggregate output TPS sums output across concurrent requests and measures serving throughput. Figures may count prompt or output tokens, and their time intervals may include or exclude queueing and prefill; these rates are not interchangeable.
+
+## Throughput
+The total work a service completes per unit of time, commonly measured in requests per second or aggregate tokens per second. Comparisons depend on the workload and latency targets.
+
+## Concurrency
+The number of requests in progress at the same time. Depending on the measurement, this may include queued requests or only those actively executing; concurrency is not necessarily the batch size. Increasing it can improve utilization until compute, memory, or scheduling limits cause latency to rise.
 
 ## Context Compaction
 Techniques used by a harness to fit an ongoing task within a model's context window. Common approaches include summarizing prior messages, removing low-value content, and retrieving relevant source material again when needed. Compaction can lose detail or introduce errors, so important state should be retained separately where possible.
@@ -64,6 +121,21 @@ The capability of a multimodal model to interpret visual inputs, including image
 
 ## Quantization
 A technique that represents model values, such as weights and sometimes activations or the KV cache, with fewer bits. It reduces memory use and can improve throughput or enable deployment on smaller hardware. The accuracy and speed trade-off depends on the quantization method, model, and hardware.
+
+## Model Parallelism
+Splitting a single model's computation and weights across multiple devices, rather than placing a complete replica on each device. Tensor, pipeline, and expert parallelism are forms that can be combined; their performance depends on partitioning and interconnect bandwidth and latency.
+
+## Tensor Parallelism
+Splitting individual layers' tensors and operations across multiple devices that cooperate to compute their outputs. It distributes weight memory and computation but requires frequent communication, making fast interconnects important.
+
+## Pipeline Parallelism
+Splitting successive model layers or stages across devices, with intermediate activations passed from one stage to the next. Multiple requests or microbatches can occupy different stages at once, but dependencies and uneven stage workloads can leave devices idle.
+
+## Data Parallelism
+Running multiple model replicas on different devices or device groups, each handling different requests or batches. In serving, this scales aggregate capacity rather than reducing the memory needed for one replica; each replica can itself use model parallelism.
+
+## Expert Parallelism
+Distributing an MoE model's experts across devices and routing token representations to the devices holding the selected experts. It spreads expert weight storage and computation, but token transfers and uneven expert demand can limit performance.
 
 ## RAG or Retrieval-Augmented Generation
 A pattern that retrieves relevant external information at query time and supplies it to a model as context for generating an answer. For example, a system can search indexed documentation, select relevant passages, and include them in the prompt. RAG does not update the model’s weights and still requires source-quality and access-control safeguards.
@@ -81,7 +153,7 @@ A program that implements the Model Context Protocol (MCP) to expose tools, reso
 AI guardrails are a layered combination of model training, instructions, classifiers, validation, permissions, sandboxing, and human approval designed to keep an AI system operating within defined boundaries even when the model makes mistakes. Guardrails can be implemented at various levels, including: user input, model instruction / system prompt, the model itself, the output, or the harness. Guardrails can be soft like training or system prompts, or hard like sandboxing or requiring human approval.
 
 ## AI Gateway
-An AI gateway is a centralized API endpoint that sits between a client and providers. A gateway aggregates many different providers behind a single API, eliminating the need for the client to manage authentication for each provider. Gateways also often provide other features such as accounting, rate limiting, and monitoring, and model routing.
+An optional API intermediary that forwards client requests to inference services or providers. It can present a single API and centralize authentication, access control, accounting, rate limiting, monitoring, and routing.
 
 ## AI (Model) Router
-An AI model router is a component that routes incoming requests to the appropriate AI model based on the request's content or metadata. It typically uses a model selection algorithm to determine the best model to handle the request.
+A component that forwards requests to a model's inference endpoint based on request content, metadata, policy, cost, or availability. It may be part of a gateway.

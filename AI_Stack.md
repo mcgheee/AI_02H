@@ -30,7 +30,7 @@ flowchart LR
   peer["Independent Agent System / Harness"]
 
   client -->|Client API / ACP for agents| harness
-  harness --> gateway
+  harness -->|Inference API| gateway
   gateway -->|Inference API| server
   harness -.->|Inference API when no gateway| server
   model -->|Executes on| hardware
@@ -82,21 +82,18 @@ Harness:
 This distinction is important because an AI application's capabilities come from the combination of the model and the software surrounding it, rather than from the model alone.
 
 
-## Protocols
+## Interfaces and Protocols
 
-### Model Inference Protocol (MIP)
-A model inference protocol (MIP) defines how a client sends inputs to a deployed model and receives inference results, along with related information such as model selection, metadata, errors, and health status. **Tensor-oriented** protocols expose the model's low-level inputs and outputs directly as typed, shaped tensors (for example, arrays of token IDs, images, embeddings, or prediction scores), making them well suited to serving many model types and integrating with ML infrastructure. **Task-oriented** protocols instead expose a higher-level operation—such as chat completion, text generation, embeddings, or classification—and use request fields meaningful to that task. They are generally simpler for application developers, but less universal because the request and response schema is tied to the task rather than the model's raw tensor interface.
 
-#### Tensor Oriented
-- [Open Inference Protocol (OIP)](https://github.com/kserve/open-inference-protocol) — a standardized protocol for model inference, typically exposed over HTTP/REST or gRPC.
-- [KServe V1 protocol](https://kserve.github.io/website/docs/concepts/architecture/data-plane/v1-protocol/) — the older KServe/KFServing prediction API, typically exposed over HTTP/REST or gRPC. OIP is essentially the successor to KServe V2, so V1 is the most direct alternative within the KServe ecosystem.
-- [TensorFlow Serving API](https://www.tensorflow.org/tfx/guide/serving) — offers REST and gRPC prediction APIs, commonly using TensorFlow-specific request and response structures.
-- [TorchServe Inference API](https://docs.pytorch.org/serve/) — HTTP-based APIs for predictions, model management, health checks, and metrics.
-- [ONNX Runtime Server API](https://github.com/microsoft/onnxruntime) — commonly accessed through REST or gRPC interfaces, depending on the serving wrapper or deployment environment.
+### Inference APIs
+An inference API lets a harness or application request inference and receive results from a server, directly or through a gateway. These interfaces generally fall into two broad categories:
 
-#### Task Oriented
-- [OpenAI-compatible APIs](https://platform.openai.com/docs/api-reference/introduction) — a de facto JSON-over-HTTP interface, especially common for LLMs. Endpoints often resemble `/v1/chat/completions`, `/v1/completions`, and `/v1/embeddings`. This is an API convention rather than a formal general-purpose tensor-inference standard.
-- [Custom REST APIs](https://restfulapi.net/) or [custom gRPC APIs](https://grpc.io/) — many production systems define their own schema over HTTP/JSON, gRPC/Protocol Buffers, or message queues such as Kafka.
+- **Task/application-oriented APIs** expose higher-level operations such as chat, text generation, embeddings, structured output, or classification. [OpenAI-compatible APIs](https://platform.openai.com/docs/api-reference/introduction) are a common example, with JSON requests over HTTP to endpoints such as `/v1/chat/completions` and `/v1/embeddings`. Supported endpoints and features vary by server.
+- **Tensor/model-oriented APIs** expose model inputs and outputs more directly as typed, shaped tensors. They support generalized ML serving rather than a specific application workflow.
+
+
+### Inference Serving Protocols
+Serving protocols standardize how clients and servers exchange inference requests, results, and related metadata. KServe's V2 inference protocol / [Open Inference Protocol (OIP)](https://github.com/kserve/open-inference-protocol) defines tensor-oriented request and response schemas with HTTP/REST and gRPC interfaces. OpenAI compatibility instead refers to an API convention, commonly implemented using JSON over HTTP.
 
 ### Model Context Protocol (MCP)
 [MCP](https://modelcontextprotocol.io/) is an open protocol that lets an AI application connect to external tools, data sources, resources, and prompt templates through MCP servers. The application (the MCP client) remains responsible for deciding which servers to connect to and enforcing permissions; MCP standardizes the interface, not trust or authorization.
@@ -120,17 +117,115 @@ In practice, a calling agent discovers the remote agent's card, authenticates as
 > The earlier [Agent Communication Protocol (also abbreviated ACP)](https://agentcommunicationprotocol.dev/) addressed this same agent-to-agent interoperability problem and joined A2A under the Linux Foundation; it is ***not*** the Agent Client Protocol above. Agent Client Protocol connects an agent to its user-facing client (for example, an IDE), whereas Agent Communication Protocol and A2A connect independently operating agents to one another for delegation and collaboration.
 
 
-## Inference Servers
-Inference servers are responsible for running the AI models and providing the inference API.
+## Inference Engines / Servers
+An **inference engine** loads models, executes inference, manages accelerator memory, and batches and schedules requests. An **inference server** exposes the engine through an inference API. Products may combine these roles with model management and other convenience features.
 
-### Local Inference Servers
-- [Ollama](https://ollama.com/)
-- [llama.cpp](https://llama.app/)
-- [vLLM](https://vllm.ai/)
-- [NVIDIA Triton Inference Server](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/customization_guide/inference_protocols.html)
-- [Seldon Core](https://docs.seldon.ai/seldon-core-1/configuration/deployments/servers/protocols)
-- [MLServer](https://docs.seldon.ai/mlserver/)
-- [OpenVINO Model Server](https://docs.openvino.ai/2025/model-server/ovms_what_is_openvino_model_server.html)
+- [vLLM](https://vllm.ai/) — LLM inference engine and API server with request scheduling and continuous batching.
+- [SGLang](https://github.com/sgl-project/sglang) — inference framework with an optimized runtime and serving interfaces.
+- [llama.cpp](https://github.com/ggml-org/llama.cpp) — inference runtime for CPUs and accelerators, with a server executable.
+- [Ollama](https://ollama.com/) — model management and an API service around inference runtimes, emphasizing ease of use.
+- [NVIDIA Triton Inference Server](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html) — API serving and scheduling across multiple model execution backends.
+- [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) — optimized LLM execution on NVIDIA GPUs, with serving interfaces and integrations.
+- [OpenVINO Model Server](https://docs.openvino.ai/2025/model-server/ovms_what_is_openvino_model_server.html) — inference server using OpenVINO execution backends.
+- [MLServer](https://docs.seldon.ai/mlserver/) — inference server with pluggable runtimes for different ML frameworks.
+
+
+## Serving / Orchestration Platforms
+Serving and orchestration platforms deploy inference servers and manage their placement, scaling, availability, and routing across machines or clusters. Applications send requests to the deployed endpoints, optionally through a gateway for authentication, routing, rate limiting, and accounting; cluster schedulers allocate resources and launch processes outside this request path.
+
+- [KServe](https://kserve.github.io/website/) — model deployment and serving on Kubernetes.
+- [Seldon](https://docs.seldon.ai/) — model deployment and management on Kubernetes.
+- [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) — distributed serving applications with request routing and scaling.
+- Kubernetes-based deployments — containers, service discovery, and resource management for inference servers.
+- Slurm/custom HPC deployments — GPU-node allocation and server launch, with additional integration for API routing and service lifecycle management.
+
+For example, KServe can manage a vLLM deployment on Kubernetes:
+
+```text
+KServe / Kubernetes
+        ↓
+vLLM
+        ↓
+Model
+        ↓
+GPUs
+```
+
+In an HPC environment, the corresponding deployment might be:
+
+```text
+Slurm / cluster orchestration
+        ↓
+vLLM or another inference runtime
+        ↓
+Model
+        ↓
+GPU nodes
+```
+
+
+## AI Infrastructure and Distributed Inference
+LLM serving requires memory for model weights and runtime state, along with compute capacity to process requests. Resource requirements depend on the model, request lengths, concurrency, and scheduling.
+
+### Weight Memory and Runtime Memory
+Approximate storage for **weights only** is:
+
+```text
+Model weight memory ≈ parameter count × bytes per parameter
+```
+
+| Representation | Approximate weight storage |
+|---|---:|
+| FP32 | 4 bytes / parameter |
+| FP16 / BF16 | 2 bytes / parameter |
+| INT8 | ~1 byte / parameter |
+| 4-bit | ~0.5 byte / parameter |
+
+Quantization metadata, mixed-precision components, and storage layout affect the actual size. Runtime memory also includes:
+
+- **KV cache** for previously processed tokens.
+- Temporary activations and execution workspaces.
+- Inference-runtime overhead, including buffers and allocator reservations.
+- Additional cache and working memory for batching/concurrent requests.
+- Multimodal components, such as vision/audio encoders and their intermediate representations, where applicable.
+
+Weight storage depends on **total parameters**, including all experts in a **Mixture-of-Experts (MoE)** model. MoE routes each token through a subset of experts, so its **active parameters per token** can be much smaller than its total count. A **dense model** generally uses all its parameters for each token. The full MoE weights may still need to be stored across the serving hardware; active parameter count alone does not determine memory use or performance.
+
+### KV Cache
+The **key-value (KV) cache** stores attention state for tokens already processed, avoiding recomputation of that state during autoregressive generation. Unlike model weights shared across requests, this state is generally sequence-specific, although engines may share cached prompt prefixes.
+
+KV-cache memory grows with context length and the number of concurrent sequences, and depends on model architecture and cache precision. A model whose weights fit in GPU memory can still run out of memory under long-context or highly concurrent workloads.
+
+### Prefill and Decode
+LLM inference has two major phases:
+
+- **Prefill** processes the initial prompt/context. Work across prompt tokens is generally highly parallel and compute-intensive.
+- **Decode** generates output tokens autoregressively, one step at a time per sequence, using and extending the KV cache. At low batch sizes, it is often limited by memory bandwidth rather than raw compute capacity.
+
+Prefill contributes to **time to first token (TTFT)**, along with queueing and first-token generation. Decode performance affects **inter-token latency (ITL)**, the spacing of subsequent output tokens. A service can process prompts quickly but generate output slowly, or vice versa.
+
+### Batching
+**Batching** combines work from multiple requests to improve accelerator utilization and aggregate throughput. **Continuous batching** lets requests enter and leave the active batch dynamically as they arrive or finish, rather than waiting for an entire fixed batch to complete.
+
+Interactive workloads generally prioritize low latency, while batch workloads prioritize aggregate throughput. Higher concurrency and larger batches can improve utilization but increase memory pressure and per-request latency. Performance metrics, including per-request and aggregate **tokens per second (TPS)**, are defined in [Terminology](Terminology.md).
+
+### Distributed Inference
+Distributed inference can split a model across devices (**model parallelism**), run independent replicas, or combine both approaches:
+
+- **Tensor parallelism** splits computation within individual model layers across accelerators. It is common when a model cannot efficiently run on one GPU or when additional compute and memory bandwidth are useful; layer execution requires inter-device communication.
+- **Pipeline parallelism** places groups of model layers on different accelerators or nodes and passes intermediate results between stages. Stage balance and keeping the pipeline busy affect utilization.
+- **Data parallelism / replication** runs multiple model copies so independent requests can be served concurrently. It primarily increases aggregate throughput, not the capacity to fit a single model instance into less memory.
+- **Expert parallelism** distributes MoE experts across accelerators and routes token representations to the devices hosting the selected experts.
+
+For example, a service can run several replicas, each using tensor parallelism across a group of GPUs.
+
+### Interconnects
+When a single model spans multiple devices, accelerator-to-accelerator and node-to-node communication becomes part of inference execution. PCIe and NVLink/NVSwitch provide device connectivity within nodes; InfiniBand and high-speed Ethernet/RDMA can carry traffic between nodes. Depending on the parallelism strategy, model architecture, and hardware topology, distributed inference can become communication-bound. Adding devices therefore does not guarantee lower latency or proportional throughput gains.
+
+### HPC Cluster Architecture
+In an HPC deployment, model instances run on GPU nodes linked by the cluster interconnect. A single instance may span multiple nodes, or separate replicas may serve independent requests.
+
+Cluster design depends heavily on the intended workload: **interactive inference** prioritizes responsiveness; **high-throughput batch inference** prioritizes aggregate work; **long-context workloads** increase prefill work and KV-cache pressure; and **multimodal workloads** add modality-specific processing and memory demands. **Fine-tuning** and **full model training** are separate workloads with additional training state and communication requirements.
 
 
 ## All-in-one solutions & desktop apps
