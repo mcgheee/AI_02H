@@ -6,38 +6,61 @@ A full AI stack combines a user-facing client, a harness / AI application, an op
 ---
 title: AI Stack
 ---
-flowchart LR
-  client["User / Client / IDE"]
-  harness["Harness / AI Application
-  Prompts, context, conversation state
-  Agent loops, tools, memory, permissions"]
-  gateway["Gateway / Router (optional)
-  Authentication, routing, rate limiting
-  Accounting, provider aggregation"]
-  subgraph serving["Model-serving layer"]
-    server["Inference Server
-    Loads and serves the model
-    Schedules requests and batching
-    Manages CPU / GPU / accelerator resources"]
-    model["Model + Context / KV Cache
-    Hosted and managed by the inference server"]
-    server -->|Runs inference| model
-  end
-  hardware["Compute Hardware
-  GPUs / NPUs / CPUs"]
-  tools["Tools / MCP Servers / External APIs"]
-  data["RAG / Data Sources / Memory"]
-  peer["Independent Agent System / Harness"]
+flowchart TB
+  subgraph application["APPLICATION PLANE"]
+    direction TB
+    client["User / Client / IDE"]
+    harness["Harness / AI Application<br/>Prompts, context, conversation state<br/>Agent loops, tools, memory, permissions"]
+    gateway["Gateway / Router (optional)<br/>Authentication, routing, rate limiting<br/>Accounting, provider aggregation"]
+    tools["Tools / MCP Servers<br/>External APIs"]
+    data["RAG / Data Sources<br/>Memory"]
+    peer["Independent Agent System<br/>Harness"]
 
-  client -->|Client API / ACP for agents| harness
-  harness -->|Inference API| gateway
+    client -->|Client API / ACP for agents| harness
+    harness -->|Inference API| gateway
+    harness <-->|MCP / tool APIs| tools
+    harness <-->|Retrieval / memory APIs| data
+    harness <-.->|A2A| peer
+  end
+
+  subgraph serving["SERVING PLANE"]
+    direction TB
+    server["Inference Service / Server<br/>Network API, queues, streaming"]
+    engine["Inference Engine<br/>Tokenization, batching, model execution"]
+    model["Loaded Model + Runtime State<br/>Weights, configuration, tokenizer, KV cache"]
+
+    server --> engine --> model
+  end
+
+  subgraph compute["COMPUTE PLANE"]
+    direction TB
+    runtime["Accelerator Software / Runtime<br/>Framework kernels, libraries, drivers"]
+    hardware["Compute Hardware<br/>GPUs / NPUs / CPUs"]
+    interconnect["Interconnect (when distributed)<br/>PCIe, NVLink / NVSwitch, network fabric"]
+
+    runtime --> hardware
+    hardware --- interconnect
+  end
+
+  subgraph support["SUPPORTING / CONTROL-PLANE SYSTEMS"]
+    direction LR
+    registry["Model Registry / Storage"]
+    scheduler["Orchestrator / Scheduler"]
+    observability["Observability"]
+    security["Security / Identity / Policy"]
+  end
+
   gateway -->|Inference API| server
-  harness -.->|Inference API when no gateway| server
-  model -->|Executes on| hardware
-  harness <-->|MCP / tool APIs: calls and results| tools
-  harness <-->|Retrieval / memory APIs: queries and data| data
-  harness <-.->|A2A| peer
+  harness -.->|Direct inference API<br/>when no gateway| server
+  model -->|Executes through| runtime
+
+  registry -.->|Supplies artifacts at deploy / startup| model
+  scheduler -.->|Places and manages instances| server
+  observability -.->|Collects telemetry across the stack| server
+  security -.->|Supplies identity and policy| gateway
 ```
+
+Solid arrows form the normal request and execution path. Dashed arrows show optional paths or control-plane relationships. The supporting systems prepare, place, secure, and observe the running stack, but they are not additional hops that every inference request traverses. In a small deployment, several boxes can be combined in one process or host.
 
 
 ## Stack Flow
