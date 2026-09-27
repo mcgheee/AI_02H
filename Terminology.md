@@ -17,6 +17,12 @@ A generative model that learns to reverse a process that adds noise to data. It 
 ## Multimodal Model
 A model that can accept, generate, or jointly reason over more than one data modality, such as text, images, audio, video, or sensor data. A vision-language model that accepts text and images is one example.
 
+## Decision Model
+A model that uses input data to recommend or select an action from available options. It may weigh predicted outcomes, costs, or constraints to choose among them, such as whether to approve a transaction or how to allocate resources. Unlike a classification model, its output is intended to guide a choice rather than simply assign a label.
+
+## Classification Model
+A model that assigns an input to one or more predefined categories. It may also return a score or probability for each category, such as whether an email is spam or a message contains harmful content. A classification result describes the input; an application may use that result to decide what action to take.
+
 ## Training
 The process of optimizing a model's parameters against data and an objective function. It includes pretraining a base model and may include fine-tuning or preference optimization for a particular use case.
 

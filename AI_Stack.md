@@ -1,29 +1,42 @@
 # AI Stack
 
-A full AI stack consists of the AI model, inference server, harness, and other components that work together to provide AI capabilities.
+A full AI stack combines a user-facing client, a harness / AI application, an optional gateway / router, and an inference server that hosts the model on compute hardware. The harness coordinates tools and data and sends model requests through the inference API.
 
 ```mermaid
 ---
 title: AI Stack Flow
 ---
 flowchart LR
-  start@{ shape: person, label: "User Request"}
-  subgraph harness["Harness"]
-    direction TD
-    agent["Agent"]
-    web["Web Chat"]
+  client["User / Client / IDE"]
+  harness["Harness / AI Application
+  Prompts, context, conversation state
+  Agent loops, tools, memory, permissions"]
+  gateway["Gateway / Router (optional)
+  Authentication, routing, rate limiting
+  Accounting, provider aggregation"]
+  subgraph serving["Model-serving layer"]
+    server["Inference Server
+    Loads and serves the model
+    Schedules requests and batching
+    Manages CPU / GPU / accelerator resources"]
+    model["Model + Context / KV Cache
+    Hosted and managed by the inference server"]
+    server -->|Runs inference| model
   end
-  tools@{ shape: st-rect, label: Tools}
-  subgraph inference["Inference Server"]
-    subgraph model["Model"]
-      contex@{ shape: win-pane, label: "Context" }
-    end
-  end
-  start --> harness
-  agent <-. A2A .-> web
-  harness <-. MCP .-> tools
-  harness -. MIP .-> model
-  model -. MIP .-> harness
+  hardware["Compute Hardware
+  GPUs / NPUs / CPUs"]
+  tools["Tools / MCP Servers / External APIs"]
+  data["RAG / Data Sources / Memory"]
+  peer["Independent Agent System / Harness"]
+
+  client -->|Client API / ACP for agents| harness
+  harness --> gateway
+  gateway -->|Inference API| server
+  harness -.->|Inference API when no gateway| server
+  model -->|Executes on| hardware
+  harness <-->|MCP / tool APIs: calls and results| tools
+  harness <-->|Retrieval / memory APIs: queries and data| data
+  harness <-.->|A2A| peer
 ```
 
 
@@ -33,31 +46,38 @@ A modern AI application might operate like this:
 ```
 User sends prompt
  ↓
-Harness:
-  •	manages the conversation
+Harness / AI Application:
+  •	manages the conversation, memory, and permissions
   •	constructs the model's context
   •	applies the system prompt
-  •	provides tools
+  •	provides tool descriptions and executes permitted tool calls
+  •	retrieves information from RAG / data sources / memory
   •	performs context compaction
   •	manages agent loops
  ↓
-Inference Server
-  •	loads the model
-  •	manages CPU/GPU resources
-  • performs inference requests
+Gateway / Router (optional):
+  •	may authenticate, route, rate-limit, and account for requests
+  •	may aggregate model providers
+ ↓ Inference API (directly from the harness if no gateway)
+Inference Server:
+  •	loads and serves the model
+  •	schedules requests and manages batching
+  •	manages CPU/GPU/accelerator resources
  ↓
-Model:
-  •	processes tokens
+Model + Context / KV Cache (hosted by the inference server):
+  •	processes tokens using context and inference-time cache
   •	performs reasoning
-  •	generates responses
-  •	decides when available tools should be used
+  •	generates responses, including requests to use available tools
+ ↓ executes on
+Compute Hardware: GPUs / NPUs / CPUs
+
+Responses return through the inference server (and gateway, if used).
  ↓
- Tools / MCP Servers / RAG Sources:
-  •	provide external information
-  •	execute actions
-  •	return results to the harness and model
- ↓
- Harness presents the final response to the user
+Harness:
+  •	executes permitted tool calls via MCP or other tool APIs
+  •	receives tool results and retrieved data
+  •	includes them as context in subsequent inference API requests
+  •	presents the final response to the user
 ```
 This distinction is important because an AI application's capabilities come from the combination of the model and the software surrounding it, rather than from the model alone.
 
