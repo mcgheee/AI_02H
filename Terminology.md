@@ -44,23 +44,13 @@ Instructions supplied by an application to guide a model's behavior, role, const
 ## Inference
 The process of running a trained model to produce an output from an input. For an LLM, generating a reply from a prompt is inference.
 
-## Inference API
-The interface through which a client sends requests to an inference server and receives results, optionally as a stream. It defines request and response formats, such as messages and generation options or model-specific input and output tensors.
-
-## Inference Engine
-The runtime that loads and executes a model on CPUs, GPUs, or other accelerators. It manages model memory and execution scheduling, including the KV cache and batching for LLMs.
-
-## Inference Server
-Software that exposes an inference API around an inference engine, handling requests and returning or streaming results. Server and engine responsibilities often overlap within a product. Examples include vLLM's API server, llama.cpp server, OpenVINO Model Server, and Ollama.
 
 ## Inference Service
-A deployed endpoint backed by one or more inference server instances, accessed directly or through a gateway or router.
+A deployed endpoint backed by one or more [inference server instances](AI_Stack.md#inference-engines--servers), accessed directly or through a gateway or router.
 
-## Serving / Orchestration Platform
-Software that deploys inference servers and manages their placement, scaling, routing, health checks, and rollouts across machines or clusters. Examples include KServe, Seldon, and Ray Serve.
 
 ## Harness
-The application layer that users and other software use to interact with AI services. It builds inference API requests and may manage conversation history, prompts, tools, files, memory, permissions, and agent loops. Examples include chat applications, coding agents, and ComfyUI.
+The application layer that users and other software use to interact with AI services. It builds [inference API](AI_Stack.md#inference-apis) requests and may manage conversation history, prompts, tools, files, memory, permissions, and agent loops. Examples include chat applications, coding agents, and ComfyUI.
 
 ## Agent
 A system in which a harness repeatedly calls a model, evaluates its output, and may execute model-selected tools to pursue a task. Agents can plan and take actions across multiple steps, but their autonomy, permissions, and stopping conditions are defined by the surrounding software. Not every customized chatbot is an agent.

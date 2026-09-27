@@ -4,7 +4,7 @@ A full AI stack combines a user-facing client, a harness / AI application, an op
 
 ```mermaid
 ---
-title: AI Stack Flow
+title: AI Stack
 ---
 flowchart LR
   client["User / Client / IDE"]
@@ -98,7 +98,7 @@ Serving protocols standardize how clients and servers exchange inference request
 ### Model Context Protocol (MCP)
 [MCP](https://modelcontextprotocol.io/) is an open protocol that lets an AI application connect to external tools, data sources, resources, and prompt templates through MCP servers. The application (the MCP client) remains responsible for deciding which servers to connect to and enforcing permissions; MCP standardizes the interface, not trust or authorization.
 
-An MCP server acts as an adapter for a particular system, such as a filesystem, database, or service API. After the client connects, it can discover what the server offers: **tools** for taking actions, **resources** for reading data, and **prompts** for reusable interaction templates. Client and server exchange structured messages, commonly over a local process's standard input/output or HTTP, so the harness can integrate these capabilities without a custom connector for each service.
+After connecting to an [MCP server](Terminology.md#mcp-server), the client can discover its [tools](Terminology.md#tools), resources, and prompt templates. Client and server exchange structured messages, commonly over a local process's standard input/output or HTTP, so the harness can integrate these capabilities without a custom connector for each service.
 
 For example, a coding agent's harness might discover a database-query tool and describe it to the model. If the model requests a query, the harness decides whether to allow the call, sends the arguments to the MCP server, and returns the result to the model as context for its next response. The model does not connect to the database directly. An MCP server's ability to read or change data depends on its own credentials and the permissions the client gives it, so servers and their exposed tools should be configured with care.
 
@@ -108,7 +108,7 @@ For example, a coding agent's harness might discover a database-query tool and d
 ACP uses JSON-RPC messages: the client and agent first negotiate capabilities and any required authentication, then create or resume a session. The client sends a prompt, and the agent streams session updates such as text, tool activity, and progress; it can also ask the client for file or terminal access and request permission before sensitive actions. A local agent commonly runs as an editor subprocess over standard input/output, while remote transports are also being developed.
 
 ### Agent2Agent Protocol (A2A)
-[Agent2Agent (A2A)](https://a2a-protocol.org/) standardizes collaboration between independent agents, potentially built with different frameworks or run by different organizations. A remote agent publishes an **Agent Card** describing its endpoint, skills, and authentication requirements. Another agent or application can use that card to choose a suitable agent and send it a message or task; the remote agent works independently without exposing its internal tools or reasoning. For longer jobs, the caller can follow task status, receive updates by streaming or polling, and collect output **artifacts** such as documents or structured data. Unlike MCP, A2A connects agents to agents, not agents to tools.
+[Agent2Agent (A2A)](https://a2a-protocol.org/) standardizes collaboration between independent agents, potentially built with different frameworks or run by different organizations. A remote agent publishes an Agent Card describing its endpoint, skills, and authentication requirements. Another agent or application can use that card to choose a suitable agent and send it a message or task; the remote agent works independently without exposing its internal tools or reasoning. For longer jobs, the caller can follow task status, receive updates by streaming or polling, and collect output artifacts such as documents or structured data. Unlike MCP, A2A connects agents to agents, not agents to tools.
 
 In practice, a calling agent discovers the remote agent's card, authenticates as required, and sends a request to its HTTP endpoint containing a message with text, files, or structured data. The remote agent can answer immediately or return a task ID for work that continues asynchronously. If it needs more information, the task can enter an input-required state; the caller responds with another message tied to that task. When the task completes, the caller retrieves its artifacts and uses them in its own workflow.
 
@@ -118,7 +118,7 @@ In practice, a calling agent discovers the remote agent's card, authenticates as
 
 
 ## Inference Engines / Servers
-An **inference engine** loads models, executes inference, manages accelerator memory, and batches and schedules requests. An **inference server** exposes the engine through an inference API. Products may combine these roles with model management and other convenience features.
+An inference engine loads models, executes inference, manages accelerator memory, and batches and schedules requests. An inference server exposes the engine through an inference API, returning or streaming results. Products may combine these roles with model management and other convenience features.
 
 - [vLLM](https://vllm.ai/) — LLM inference engine and API server with request scheduling and continuous batching.
 - [SGLang](https://github.com/sgl-project/sglang) — inference framework with an optimized runtime and serving interfaces.
@@ -131,7 +131,7 @@ An **inference engine** loads models, executes inference, manages accelerator me
 
 
 ## Serving / Orchestration Platforms
-Serving and orchestration platforms deploy inference servers and manage their placement, scaling, availability, and routing across machines or clusters. Applications send requests to the deployed endpoints, optionally through a gateway for authentication, routing, rate limiting, and accounting; cluster schedulers allocate resources and launch processes outside this request path.
+Serving and orchestration platforms deploy inference servers and manage their placement, scaling, health checks, rollouts, and routing across machines or clusters. Applications send requests to the deployed endpoints, optionally through a gateway for authentication, routing, rate limiting, and accounting; cluster schedulers allocate resources and launch processes outside this request path.
 
 - [KServe](https://kserve.github.io/website/) — model deployment and serving on Kubernetes.
 - [Seldon](https://docs.seldon.ai/) — model deployment and management on Kubernetes.
@@ -168,7 +168,7 @@ GPU nodes
 LLM serving requires memory for model weights and runtime state, along with compute capacity to process requests. Resource requirements depend on the model, request lengths, concurrency, and scheduling.
 
 ### Weight Memory and Runtime Memory
-Approximate storage for **weights only** is:
+Approximate storage for weights only is:
 
 ```text
 Model weight memory ≈ parameter count × bytes per parameter
@@ -183,41 +183,31 @@ Model weight memory ≈ parameter count × bytes per parameter
 
 Quantization metadata, mixed-precision components, and storage layout affect the actual size. Runtime memory also includes:
 
-- **KV cache** for previously processed tokens.
+- [KV cache](Terminology.md#kv-cache).
 - Temporary activations and execution workspaces.
 - Inference-runtime overhead, including buffers and allocator reservations.
 - Additional cache and working memory for batching/concurrent requests.
 - Multimodal components, such as vision/audio encoders and their intermediate representations, where applicable.
 
-Weight storage depends on **total parameters**, including all experts in a **Mixture-of-Experts (MoE)** model. MoE routes each token through a subset of experts, so its **active parameters per token** can be much smaller than its total count. A **dense model** generally uses all its parameters for each token. The full MoE weights may still need to be stored across the serving hardware; active parameter count alone does not determine memory use or performance.
+For both [dense](Terminology.md#dense-model) and [Mixture-of-Experts (MoE)](Terminology.md#mixture-of-experts-moe) models, the weight-storage estimate uses [total parameters](Terminology.md#total-parameters), not [active parameters per token](Terminology.md#active-parameters).
 
 ### KV Cache
-The **key-value (KV) cache** stores attention state for tokens already processed, avoiding recomputation of that state during autoregressive generation. Unlike model weights shared across requests, this state is generally sequence-specific, although engines may share cached prompt prefixes.
-
-KV-cache memory grows with context length and the number of concurrent sequences, and depends on model architecture and cache precision. A model whose weights fit in GPU memory can still run out of memory under long-context or highly concurrent workloads.
+Capacity planning must reserve space for the [KV cache](Terminology.md#kv-cache) in addition to model weights. A model whose weights fit in GPU memory can still run out of memory under long-context or highly concurrent workloads. Engines may reduce cache usage by sharing common prompt prefixes across requests.
 
 ### Prefill and Decode
-LLM inference has two major phases:
+[Prefill](Terminology.md#prefill) is generally highly parallel and compute-intensive, while [decode](Terminology.md#decode) at low batch sizes is often limited by memory bandwidth. These phases can therefore benefit from different scheduling and resource allocations.
 
-- **Prefill** processes the initial prompt/context. Work across prompt tokens is generally highly parallel and compute-intensive.
-- **Decode** generates output tokens autoregressively, one step at a time per sequence, using and extending the KV cache. At low batch sizes, it is often limited by memory bandwidth rather than raw compute capacity.
-
-Prefill contributes to **time to first token (TTFT)**, along with queueing and first-token generation. Decode performance affects **inter-token latency (ITL)**, the spacing of subsequent output tokens. A service can process prompts quickly but generate output slowly, or vice versa.
+[Time to first token (TTFT)](Terminology.md#time-to-first-token-ttft) and [inter-token latency (ITL)](Terminology.md#inter-token-latency-itl) help distinguish prompt-processing delays from slow generation when evaluating a service.
 
 ### Batching
-**Batching** combines work from multiple requests to improve accelerator utilization and aggregate throughput. **Continuous batching** lets requests enter and leave the active batch dynamically as they arrive or finish, rather than waiting for an entire fixed batch to complete.
+[Batching](Terminology.md#batching) policies depend on the workload: interactive services generally prioritize low latency, while batch jobs prioritize aggregate throughput. [Continuous batching](Terminology.md#continuous-batching) is useful when requests have different prompt and output lengths. Batch limits must leave enough memory for active requests and avoid excessive queueing.
 
-Interactive workloads generally prioritize low latency, while batch workloads prioritize aggregate throughput. Higher concurrency and larger batches can improve utilization but increase memory pressure and per-request latency. Performance metrics, including per-request and aggregate **tokens per second (TPS)**, are defined in [Terminology](Terminology.md).
+Benchmarks reported in [tokens per second (TPS)](Terminology.md#tokens-per-second-tps) need comparable request lengths, concurrency, and latency targets to support capacity decisions.
 
 ### Distributed Inference
-Distributed inference can split a model across devices (**model parallelism**), run independent replicas, or combine both approaches:
+A deployment can combine [model parallelism](Terminology.md#model-parallelism) within each instance with [data parallelism](Terminology.md#data-parallelism) across instances. For example, a service might run several replicas, each using [tensor parallelism](Terminology.md#tensor-parallelism) across a group of GPUs. Requests can be routed among replicas while each GPU group cooperates on its assigned work.
 
-- **Tensor parallelism** splits computation within individual model layers across accelerators. It is common when a model cannot efficiently run on one GPU or when additional compute and memory bandwidth are useful; layer execution requires inter-device communication.
-- **Pipeline parallelism** places groups of model layers on different accelerators or nodes and passes intermediate results between stages. Stage balance and keeping the pipeline busy affect utilization.
-- **Data parallelism / replication** runs multiple model copies so independent requests can be served concurrently. It primarily increases aggregate throughput, not the capacity to fit a single model instance into less memory.
-- **Expert parallelism** distributes MoE experts across accelerators and routes token representations to the devices hosting the selected experts.
-
-For example, a service can run several replicas, each using tensor parallelism across a group of GPUs.
+[Pipeline parallelism](Terminology.md#pipeline-parallelism) and [expert parallelism](Terminology.md#expert-parallelism) add placement considerations: layer groups and MoE experts must be distributed with enough memory, balanced work, and suitable connectivity. The combination depends on model architecture, runtime support, and cluster topology.
 
 ### Interconnects
 When a single model spans multiple devices, accelerator-to-accelerator and node-to-node communication becomes part of inference execution. PCIe and NVLink/NVSwitch provide device connectivity within nodes; InfiniBand and high-speed Ethernet/RDMA can carry traffic between nodes. Depending on the parallelism strategy, model architecture, and hardware topology, distributed inference can become communication-bound. Adding devices therefore does not guarantee lower latency or proportional throughput gains.
@@ -225,7 +215,7 @@ When a single model spans multiple devices, accelerator-to-accelerator and node-
 ### HPC Cluster Architecture
 In an HPC deployment, model instances run on GPU nodes linked by the cluster interconnect. A single instance may span multiple nodes, or separate replicas may serve independent requests.
 
-Cluster design depends heavily on the intended workload: **interactive inference** prioritizes responsiveness; **high-throughput batch inference** prioritizes aggregate work; **long-context workloads** increase prefill work and KV-cache pressure; and **multimodal workloads** add modality-specific processing and memory demands. **Fine-tuning** and **full model training** are separate workloads with additional training state and communication requirements.
+Cluster design depends heavily on the intended workload: interactive inference prioritizes responsiveness; high-throughput batch inference prioritizes aggregate work; long-context workloads increase prefill work and KV-cache pressure; and multimodal workloads add modality-specific processing and memory demands. Fine-tuning and [full model training](Terminology.md#training) are separate workloads with additional training state and communication requirements.
 
 
 ## All-in-one solutions & desktop apps
