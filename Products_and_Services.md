@@ -2,8 +2,16 @@
 
 This catalog maps representative products and services to the architectural role they primarily implement. It is not an exhaustive directory. A product can span layers, but the distinctions between a model developer, inference provider, inference engine, gateway, orchestration platform, and application remain useful when designing or operating a system. See [AI Stack](AI_Stack.md) for the architecture behind these categories.
 
+> **Note:** Reviewed September 27, 2026.
+
+
+# AI Labs
+
+Model developers create model architectures, train model weights, and publish models or expose them through services. The organization that develops a model is not necessarily the organization that runs inference for a particular application.
+
+
 ## Frontier Labs
-Main AI applications and developer services from the four labs below; individual model versions and subscription tiers are not listed separately. Reviewed September 27, 2026.
+These labs are currently leading in model research & development. Included is a list of their products and services.
 
 #### ![OpenAI logo](https://www.google.com/s2/favicons?domain=openai.com&sz=32) OpenAI
 - [ChatGPT](https://chatgpt.com/) (web)
@@ -54,8 +62,6 @@ Note: the standalone Codex app has been consolidated into ChatGPT. [ChatGPT Atla
 
 ## Other Labs
 
-Model developers create model architectures, train model weights, and publish models or expose them through services. The organization that develops a model is not necessarily the organization that runs inference for a particular application.
-
 - [Meta AI](https://ai.meta.com/llama/): develops the Llama model family and distributes model artifacts under its applicable licenses.
 - [Mistral AI](https://mistral.ai/models): develops open-weight and hosted models.
 - [Cohere](https://cohere.com/models): develops language and embedding models for enterprise applications.
@@ -70,7 +76,7 @@ Model developers create model architectures, train model weights, and publish mo
 - [Xiaomi MiMo](https://github.com/XiaomiMiMo): develops and publishes the MiMo model family.
 - [Stability AI](https://stability.ai/): develops generative models for images, video, audio, and other media.
 
-## Model Registries and Distribution
+# Model Registries and Distribution
 
 Registries and hubs store, version, document, and distribute [model artifacts](Terminology.md#model-artifact). They are the source from which an operator downloads a model, not the runtime that executes it.
 
@@ -78,7 +84,7 @@ Registries and hubs store, version, document, and distribute [model artifacts](T
 - [NVIDIA NGC Catalog](https://catalog.ngc.nvidia.com/): distributes models, containers, and related GPU software artifacts.
 - [Ollama model library](https://ollama.com/library): distributes models packaged for Ollama's local model-management workflow.
 
-## Hosted Model and Inference APIs
+## Hosted Model and Inference Providers
 
 Inference providers operate compute and expose model inference through network APIs. Some providers serve models they developed, while others host models from multiple developers.
 
