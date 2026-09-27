@@ -3,88 +3,88 @@
 This document is designed to be a longer refernce document to accompany a course designed to get OPs team members up to speed quickly current AI trends over a long lunch break or afternoon.
 
 
-
 ## Terminology
 
 The agentic AI space has grown rapidly and, like any other area of technology, has generated its own buzzwords and lingo. Before going further, we need to make sure everyone shares the same terminology.
 
 ### Gen AI or Generative AI
-> AI systems that generate new content, such as text, images, audio, video, code, or structured data. Large language models and diffusion models are common types of generative AI.
+AI systems that generate new content, such as text, images, audio, video, code, or structured data. Large language models and diffusion models are common types of generative AI.
 
 ### Model
-> A trained mathematical system that maps input to output using parameters learned from data. During inference, it uses those parameters to predict, generate, classify, or analyze. A model is distinct from the application or service used to access it; one model can be served by multiple inference servers or harnesses.
+A trained mathematical system that maps input to output using parameters learned from data. During inference, it uses those parameters to predict, generate, classify, or analyze. A model is distinct from the application or service used to access it; one model can be served by multiple inference servers or harnesses.
 
 ### LLM or Large Language Model
-> A generative model trained primarily on text and code, usually to predict the next token in a sequence. It can be used for tasks such as question answering, writing, summarization, translation, and code generation.
+A generative model trained primarily on text and code, usually to predict the next token in a sequence. It can be used for tasks such as question answering, writing, summarization, translation, and code generation.
 
 ### Diffusion Model
-> A generative model that learns to reverse a process that adds noise to data. It commonly generates images, video, or audio by iteratively denoising a random-noise sample.
+A generative model that learns to reverse a process that adds noise to data. It commonly generates images, video, or audio by iteratively denoising a random-noise sample.
 
 ### Multimodal Model
-> A model that can accept, generate, or jointly reason over more than one data modality, such as text, images, audio, video, or sensor data. A vision-language model that accepts text and images is one example.
+A model that can accept, generate, or jointly reason over more than one data modality, such as text, images, audio, video, or sensor data. A vision-language model that accepts text and images is one example.
 
 ### Training
-> The process of optimizing a model’s parameters against data and an objective function. It includes pretraining a base model and may include fine-tuning or preference optimization for a particular use case.
+The process of optimizing a model’s parameters against data and an objective function. It includes pretraining a base model and may include fine-tuning or preference optimization for a particular use case.
 
 ### System Prompt
-> Instructions supplied by an application to guide a model’s behavior, role, constraints, and tool use for a conversation. It usually precedes user content and may be hidden from the user. It changes runtime behavior but does not modify the model’s weights or guarantee compliance.
+Instructions supplied by an application to guide a model’s behavior, role, constraints, and tool use for a conversation. It usually precedes user content and may be hidden from the user. It changes runtime behavior but does not modify the model’s weights or guarantee compliance.
 
 ### Inference
-> The process of running a trained model to produce an output from an input. For an LLM, generating a reply from a prompt is inference.
+The process of running a trained model to produce an output from an input. For an LLM, generating a reply from a prompt is inference.
 
 ### Inference Server
-> Software that loads models and exposes inference through an API or another programmatic interface. It schedules requests and manages model memory, batching, and CPU, GPU, or accelerator resources. Examples include vLLM, llama.cpp server, OpenVINO Model Server, and Ollama.
+Software that loads models and exposes inference through an API or another programmatic interface. It schedules requests and manages model memory, batching, and CPU, GPU, or accelerator resources. Examples include vLLM, llama.cpp server, OpenVINO Model Server, and Ollama.
 
 ### Harness
-> The application layer that lets users or other software work with a model. It builds requests and may manage conversation history, prompts, tools, files, memory, permissions, and agent loops. Examples include chat applications, coding agents, and ComfyUI.
+The application layer that lets users or other software work with a model. It builds requests and may manage conversation history, prompts, tools, files, memory, permissions, and agent loops. Examples include chat applications, coding agents, and ComfyUI.
 
 ### Agent
-> A system in which a harness repeatedly calls a model, evaluates its output, and may execute model-selected tools to pursue a task. Agents can plan and take actions across multiple steps, but their autonomy, permissions, and stopping conditions are defined by the surrounding software. Not every customized chatbot is an agent.
+A system in which a harness repeatedly calls a model, evaluates its output, and may execute model-selected tools to pursue a task. Agents can plan and take actions across multiple steps, but their autonomy, permissions, and stopping conditions are defined by the surrounding software. Not every customized chatbot is an agent.
 
 ### Turn
-> One unit of a conversation, typically a user message and the assistant response that follows it. APIs may also use "turn" to refer to a single model invocation.
+One unit of a conversation, typically a user message and the assistant response that follows it. APIs may also use "turn" to refer to a single model invocation.
 
 ### Token
-> A discrete unit produced by a model’s tokenizer and consumed or generated by the model. Tokens may represent whole words, word fragments, punctuation, whitespace, or individual characters; their size varies by tokenizer and language.
+A discrete unit produced by a model’s tokenizer and consumed or generated by the model. Tokens may represent whole words, word fragments, punctuation, whitespace, or individual characters; their size varies by tokenizer and language.
 
 ### Context Window
-> The maximum number of tokens a model can consider in one inference request. It includes the prompt, system instructions, conversation history, retrieved content, tool results, and usually the tokens reserved for the response. It is a capacity limit, not reliable long-term memory.
+The maximum number of tokens a model can consider in one inference request. It includes the prompt, system instructions, conversation history, retrieved content, tool results, and usually the tokens reserved for the response. It is a capacity limit, not reliable long-term memory.
 
 ### Context Compaction
-> Techniques used by a harness to fit an ongoing task within a model's context window. Common approaches include summarizing prior messages, removing low-value content, and retrieving relevant source material again when needed. Compaction can lose detail or introduce errors, so important state should be retained separately where possible.
+Techniques used by a harness to fit an ongoing task within a model's context window. Common approaches include summarizing prior messages, removing low-value content, and retrieving relevant source material again when needed. Compaction can lose detail or introduce errors, so important state should be retained separately where possible.
 
 ### Thinking
-> An informal product term for additional inference-time computation before a final answer. Depending on the model and service, it can involve generated intermediate tokens, search, self-evaluation, or other internal methods. It does not imply consciousness or human-like thought.
+An informal product term for additional inference-time computation before a final answer. Depending on the model and service, it can involve generated intermediate tokens, search, self-evaluation, or other internal methods. It does not imply consciousness or human-like thought.
 
 ### Reasoning
-> The ability of a model or system to solve problems through intermediate inferences, planning, or evaluation. “Reasoning models” commonly allocate more inference-time computation to difficult problems, which can improve performance but increases latency and cost.
+The ability of a model or system to solve problems through intermediate inferences, planning, or evaluation. “Reasoning models” commonly allocate more inference-time computation to difficult problems, which can improve performance but increases latency and cost.
 
 ### Vision
-> The capability of a multimodal model to interpret visual inputs, including images, screenshots, diagrams, charts, and document pages. It is generally implemented by encoding the visual input into representations the model can use with other context.
+The capability of a multimodal model to interpret visual inputs, including images, screenshots, diagrams, charts, and document pages. It is generally implemented by encoding the visual input into representations the model can use with other context.
 
 ### Quantization
-> A technique that represents model values, such as weights and sometimes activations or the KV cache, with fewer bits. It reduces memory use and can improve throughput or enable deployment on smaller hardware. The accuracy and speed trade-off depends on the quantization method, model, and hardware.
+A technique that represents model values, such as weights and sometimes activations or the KV cache, with fewer bits. It reduces memory use and can improve throughput or enable deployment on smaller hardware. The accuracy and speed trade-off depends on the quantization method, model, and hardware.
 
 ### RAG or Retrieval-Augmented Generation
-> A pattern that retrieves relevant external information at query time and supplies it to a model as context for generating an answer. For example, a system can search indexed documentation, select relevant passages, and include them in the prompt. RAG does not update the model’s weights and still requires source-quality and access-control safeguards.
+A pattern that retrieves relevant external information at query time and supplies it to a model as context for generating an answer. For example, a system can search indexed documentation, select relevant passages, and include them in the prompt. RAG does not update the model’s weights and still requires source-quality and access-control safeguards.
 
 ### Tools
-> Capabilities made available to a model by a harness, such as web search, file access, code execution, database queries, or API calls. The model can request a tool, but the harness performs the action and enforces permissions.
+Capabilities made available to a model by a harness, such as web search, file access, code execution, database queries, or API calls. The model can request a tool, but the harness performs the action and enforces permissions.
 
 ### Tool Use
-> The interaction pattern in which a model selects a tool and provides structured arguments, the harness executes it, and the result is returned to the model as context. The model can then use that result to continue working or produce a response.
+The interaction pattern in which a model selects a tool and provides structured arguments, the harness executes it, and the result is returned to the model as context. The model can then use that result to continue working or produce a response.
 
 ### MCP Server
-> A program that implements the Model Context Protocol (MCP) to expose tools, resources, or prompt templates to an MCP client, such as an AI harness. MCP standardizes the connection and message format; it does not itself grant trust, authorization, or sandboxing.
+A program that implements the Model Context Protocol (MCP) to expose tools, resources, or prompt templates to an MCP client, such as an AI harness. MCP standardizes the connection and message format; it does not itself grant trust, authorization, or sandboxing.
  
 ### Guardrails
-> AI guardrails are a layered combination of model training, instructions, classifiers, validation, permissions, sandboxing, and human approval designed to keep an AI system operating within defined boundaries even when the model makes mistakes. Guardrails can be implemented at various levels, including: user input, model instruction / system prompt, the model itself, the output, or the harness. Guardrails can be soft like training or system prompts, or hard like sandboxing or requiring human approval.
+AI guardrails are a layered combination of model training, instructions, classifiers, validation, permissions, sandboxing, and human approval designed to keep an AI system operating within defined boundaries even when the model makes mistakes. Guardrails can be implemented at various levels, including: user input, model instruction / system prompt, the model itself, the output, or the harness. Guardrails can be soft like training or system prompts, or hard like sandboxing or requiring human approval.
 
 ### AI Gateway
-> An AI gateway is a centralized API endpoint that sits between a client and providers. A gateway aggregates many different providers behind a single API, eliminating the need for the client to manage authentication for each provider. Gateways also often provide other features such as accounting, rate limiting, and monitoring, and model routing.
+An AI gateway is a centralized API endpoint that sits between a client and providers. A gateway aggregates many different providers behind a single API, eliminating the need for the client to manage authentication for each provider. Gateways also often provide other features such as accounting, rate limiting, and monitoring, and model routing.
 
 ### AI (Model) Router
-> An AI model router is a component that routes incoming requests to the appropriate AI model based on the request's content or metadata. It typically uses a model selection algorithm to determine the best model to handle the request.
+An AI model router is a component that routes incoming requests to the appropriate AI model based on the request's content or metadata. It typically uses a model selection algorithm to determine the best model to handle the request.
+
 
 
 # AI Stack
@@ -114,6 +114,7 @@ flowchart LR
   harness -. MIP .-> model
   model -. MIP .-> harness
 ```
+
 
 ## Stack Flow
 A modern AI application might operate like this:
@@ -149,10 +150,10 @@ Model:
 ```
 This distinction is important because an AI application's capabilities come from the combination of the model and the software surrounding it, rather than from the model alone.
 
+
 ## Protocols
 
 ### Model Inference Protocol (MIP)
-
 A model inference protocol (MIP) defines how a client sends inputs to a deployed model and receives inference results, along with related information such as model selection, metadata, errors, and health status. **Tensor-oriented** protocols expose the model's low-level inputs and outputs directly as typed, shaped tensors (for example, arrays of token IDs, images, embeddings, or prediction scores), making them well suited to serving many model types and integrating with ML infrastructure. **Task-oriented** protocols instead expose a higher-level operation—such as chat completion, text generation, embeddings, or classification—and use request fields meaningful to that task. They are generally simpler for application developers, but less universal because the request and response schema is tied to the task rather than the model's raw tensor interface.
 
 #### Tensor Oriented
@@ -167,24 +168,28 @@ A model inference protocol (MIP) defines how a client sends inputs to a deployed
 - [Custom REST APIs](https://restfulapi.net/) or [custom gRPC APIs](https://grpc.io/) — many production systems define their own schema over HTTP/JSON, gRPC/Protocol Buffers, or message queues such as Kafka.
 
 ### Model Context Protocol (MCP)
-
 [MCP](https://modelcontextprotocol.io/) is an open protocol that lets an AI application connect to external tools, data sources, resources, and prompt templates through MCP servers. The application (the MCP client) remains responsible for deciding which servers to connect to and enforcing permissions; MCP standardizes the interface, not trust or authorization.
 
 An MCP server acts as an adapter for a particular system, such as a filesystem, database, or service API. After the client connects, it can discover what the server offers: **tools** for taking actions, **resources** for reading data, and **prompts** for reusable interaction templates. Client and server exchange structured messages, commonly over a local process's standard input/output or HTTP, so the harness can integrate these capabilities without a custom connector for each service.
 
 For example, a coding agent's harness might discover a database-query tool and describe it to the model. If the model requests a query, the harness decides whether to allow the call, sends the arguments to the MCP server, and returns the result to the model as context for its next response. The model does not connect to the database directly. An MCP server's ability to read or change data depends on its own credentials and the permissions the client gives it, so servers and their exposed tools should be configured with care.
 
-### Agent Client Protocol (ACP) and Agent2Agent Protocol (A2A)
+### Agent Client Protocol (ACP)
+[Agent Client Protocol (ACP)](https://agentclientprotocol.com/) standardizes the interface between a coding agent and the application presenting it to a user, typically an editor or IDE. It lets an editor integrate different agents without building a separate UI integration for each one. The client owns the user-facing experience and controls access to its resources; the agent does the coding work.
 
-[Agent Client Protocol (ACP)](https://agentclientprotocol.com/) standardizes communication between an agent and the client hosting it, such as an IDE: sessions, messages, progress updates, and requests for user input or permission.
-
+ACP uses JSON-RPC messages: the client and agent first negotiate capabilities and any required authentication, then create or resume a session. The client sends a prompt, and the agent streams session updates such as text, tool activity, and progress; it can also ask the client for file or terminal access and request permission before sensitive actions. A local agent commonly runs as an editor subprocess over standard input/output, while remote transports are also being developed.
 
 ### Agent2Agent Protocol (A2A)
+[Agent2Agent (A2A)](https://a2a-protocol.org/) standardizes collaboration between independent agents, potentially built with different frameworks or run by different organizations. A remote agent publishes an **Agent Card** describing its endpoint, skills, and authentication requirements. Another agent or application can use that card to choose a suitable agent and send it a message or task; the remote agent works independently without exposing its internal tools or reasoning. For longer jobs, the caller can follow task status, receive updates by streaming or polling, and collect output **artifacts** such as documents or structured data. Unlike MCP, A2A connects agents to agents, not agents to tools.
 
-[A2A](https://agent2agentprotocol.io/) is a protocol for communication between independent AI agents, including agents owned by different teams or running in different systems. It enables an agent to advertise its capabilities, delegate or collaborate on tasks, and exchange task status and artifacts; unlike MCP, it is designed for agent-to-agent collaboration rather than connecting an agent to a tool or data source.
+In practice, a calling agent discovers the remote agent's card, authenticates as required, and sends a request to its HTTP endpoint containing a message with text, files, or structured data. The remote agent can answer immediately or return a task ID for work that continues asynchronously. If it needs more information, the task can enter an input-required state; the caller responds with another message tied to that task. When the task completes, the caller retrieves its artifacts and uses them in its own workflow.
+
+> **NOTE:**
+>
+> The earlier [Agent Communication Protocol (also abbreviated ACP)](https://agentcommunicationprotocol.dev/) addressed this same agent-to-agent interoperability problem and joined A2A under the Linux Foundation; it is ***not*** the Agent Client Protocol above. Agent Client Protocol connects an agent to its user-facing client (for example, an IDE), whereas Agent Communication Protocol and A2A connect independently operating agents to one another for delegation and collaboration.
+
 
 ## Inference Servers
-
 Inference servers are responsible for running the AI models and providing the inference API.
 
 ### Local Inference Servers
