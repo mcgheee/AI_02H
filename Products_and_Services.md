@@ -43,5 +43,13 @@
 - windsurf
 - cline
 
+## All-in-one solutions & desktop apps
+- [lmstudio](https://lmstudio.ai/)
+- [localai](https://localai.io/)
+- [unsloth](https://github.com/unslothai/unsloth)
+- [jan](https://jan.ai/)
+- [anythingllm](https://github.com/AnythingLLM/anythingllm)
+- [lemonade-server.ai](https://lemonade-server.ai/)
+
 # Image & Video Generation
 - comfy.ui
