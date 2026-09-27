@@ -127,6 +127,12 @@ Running multiple model replicas on different devices or device groups, each hand
 ## Expert Parallelism
 Distributing an MoE model's experts across devices and routing token representations to the devices holding the selected experts. It spreads expert weight storage and computation, but token transfers and uneven expert demand can limit performance.
 
+## Embeddings
+Embeddings are numeric vectors that represent text, images, or other data in a form that can be compared mathematically. Embeddings produced by the same model can place related items close together, making them useful for semantic search and retrieval. Similarity does not guarantee that two items mean the same thing or that their contents are accurate.
+
+## Embedding Model
+A model trained to convert inputs into embeddings. To search a collection, an application typically embeds both the stored items and a query using the same model, then compares their vectors to find likely matches. Embedding models produce representations for comparison, not the original content or a generated answer.
+
 ## RAG or Retrieval-Augmented Generation
 A pattern that retrieves relevant external information at query time and supplies it to a model as context for generating an answer. For example, a system can search indexed documentation, select relevant passages, and include them in the prompt. RAG does not update the model’s weights and still requires source-quality and access-control safeguards.
 

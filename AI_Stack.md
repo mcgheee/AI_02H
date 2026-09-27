@@ -81,9 +81,12 @@ Harness:
 ```
 This distinction is important because an AI application's capabilities come from the combination of the model and the software surrounding it, rather than from the model alone.
 
+## Harnesses
+A harness is the application layer around a model. It turns a user's request into model inputs, maintains conversation state, and decides what to do with the model's outputs. It assembles prompts and relevant context, manages agent loops and context compaction, and can retrieve data or make tools available to the model. When the model requests a tool call, the harness checks permissions, executes the call, and feeds the result back into a subsequent model request.
+
+This separates application behavior from inference. The inference server runs the model and returns its output; the harness determines how that output becomes an action or a response to the user. A coding agent, for example, can use a harness to read files, run permitted commands, and present its work in an IDE. The interfaces below describe how the harness communicates with model servers, tools, clients, and other agents.
 
 ## Interfaces and Protocols
-
 
 ### Inference APIs
 An inference API lets a harness or application request inference and receive results from a server, directly or through a gateway. These interfaces generally fall into two broad categories:
@@ -120,22 +123,10 @@ In practice, a calling agent discovers the remote agent's card, authenticates as
 ## Inference Engines / Servers
 An inference engine loads models, executes inference, manages accelerator memory, and batches and schedules requests. An inference server exposes the engine through an inference API, returning or streaming results. Products may combine these roles with model management and other convenience features.
 
-- [vLLM](https://vllm.ai/) — LLM inference engine and API server with request scheduling and continuous batching.
-- [SGLang](https://github.com/sgl-project/sglang) — inference framework with an optimized runtime and serving interfaces.
-- [llama.cpp](https://github.com/ggml-org/llama.cpp) — inference runtime for CPUs and accelerators, with a server executable.
-- [Ollama](https://ollama.com/) — model management and an API service around inference runtimes, emphasizing ease of use.
-- [NVIDIA Triton Inference Server](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html) — API serving and scheduling across multiple model execution backends.
-- [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) — optimized LLM execution on NVIDIA GPUs, with serving interfaces and integrations.
-- [OpenVINO Model Server](https://docs.openvino.ai/2025/model-server/ovms_what_is_openvino_model_server.html) — inference server using OpenVINO execution backends.
-- [MLServer](https://docs.seldon.ai/mlserver/) — inference server with pluggable runtimes for different ML frameworks.
-
 
 ## Serving / Orchestration Platforms
 Serving and orchestration platforms deploy inference servers and manage their placement, scaling, health checks, rollouts, and routing across machines or clusters. Applications send requests to the deployed endpoints, optionally through a gateway for authentication, routing, rate limiting, and accounting; cluster schedulers allocate resources and launch processes outside this request path.
 
-- [KServe](https://kserve.github.io/website/) — model deployment and serving on Kubernetes.
-- [Seldon](https://docs.seldon.ai/) — model deployment and management on Kubernetes.
-- [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) — distributed serving applications with request routing and scaling.
 - Kubernetes-based deployments — containers, service discovery, and resource management for inference servers.
 - Slurm/custom HPC deployments — GPU-node allocation and server launch, with additional integration for API routing and service lifecycle management.
 
@@ -175,18 +166,3 @@ When a single model spans multiple devices, accelerator-to-accelerator and node-
 In an HPC deployment, model instances run on GPU nodes linked by the cluster interconnect. A single instance may span multiple nodes, or separate replicas may serve independent requests.
 
 Cluster design depends heavily on the intended workload: interactive inference prioritizes responsiveness; high-throughput batch inference prioritizes aggregate work; long-context workloads increase prefill work and KV-cache pressure; and multimodal workloads add modality-specific processing and memory demands. Fine-tuning and [full model training](Terminology.md#training) are separate workloads with additional training state and communication requirements.
-
-
-
-
-
-
-
-## Agents & Harnesses
-
-### Agentic Concepts
-- Plugins
-- Skills
-- Tools
-- .agents file
-- Memory
