@@ -175,8 +175,32 @@ Embeddings are numeric vectors that represent text, images, or other data in a f
 ## Embedding Model
 A model trained to convert inputs into embeddings. To search a collection, an application typically embeds both the stored items and a query using the same model, then compares their vectors to find likely matches. Embedding models produce representations for comparison, not the original content or a generated answer.
 
+## Chunking
+The process of dividing source content into units that a retrieval system can index and return. Chunk size, overlap, and boundaries affect how much meaning each unit retains, how precisely it can be retrieved, and how much model context it consumes.
+
+## Retrieval
+The process of finding external records or content relevant to a request. Retrieval can use vector similarity, full-text search, structured queries, graph traversal, application APIs, or a combination of methods.
+
+## Vector Search
+A search method that ranks stored items by the similarity of their embeddings to a query embedding. It supports semantic matching, but a high similarity score does not prove that a result is correct or relevant.
+
+## Vector Index
+A data structure that organizes embeddings for vector search. Many implementations use approximate nearest-neighbor techniques to reduce query cost. A vector index may be a feature within a general database, search engine, or dedicated vector database.
+
+## Vector Database
+A database or service designed to store vectors and associated records and to provide vector indexing, filtering, update, and query operations. It can provide retrieval for RAG, but it is not a complete RAG system and is not required when another retrieval method is more appropriate.
+
+## Metadata Filtering
+Restricting retrieval candidates using structured attributes such as tenant, owner, classification, source, date, or document type. Metadata filters help narrow a search, but authorization-sensitive fields must be derived and enforced by trusted application or data services.
+
+## Reranking
+Rescoring a set of retrieval candidates against the original query to produce a more relevant ordering. A reranker model can evaluate query and candidate text together more precisely than the initial search, at the cost of additional compute and latency.
+
+## Grounding
+Connecting a generated response to supplied evidence or authoritative data. RAG can provide grounding material and source references, but neither retrieval nor prompt instructions guarantee that every generated claim follows from that material.
+
 ## RAG or Retrieval-Augmented Generation
-A pattern that retrieves relevant external information at query time and supplies it to a model as context for generating an answer. For example, a system can search indexed documentation, select relevant passages, and include them in the prompt. RAG does not update the model’s weights and still requires source-quality and access-control safeguards.
+An application architecture that retrieves relevant external information at query time and supplies it to a model as context for generating an answer. For example, a system can search indexed documentation, select relevant passages, and include them in the prompt. RAG does not normally update the model's weights and still requires source-quality and access-control safeguards. See [Retrieval-Augmented Generation Architecture](RAG.md) for the ingestion and query paths.
 
 ## Tools
 Capabilities made available to a model by a harness, such as web search, file access, code execution, database queries, or API calls. The model can request a tool, but the harness performs the action and enforces permissions.
