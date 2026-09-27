@@ -72,53 +72,6 @@ Keep this explanation oriented toward architecture rather than teaching embeddin
 
 ---
 
-# 3. Expand self-hosted AI coverage in `AI_Stack.md`
-
-Add a dedicated self-hosted AI section to `AI_Stack.md`.
-
-The purpose of this section is to bridge the abstract AI stack with the infrastructure a sysadmin would actually deploy.
-
-Explain the major components involved when self-hosting an inference service, such as:
-
-```text
-Client / AI application
-        ↓
-Gateway / ingress
-        ↓
-Inference service
-        ↓
-Inference engine
-        ↓
-Model artifacts
-        ↓
-Accelerator runtime
-        ↓
-GPU / accelerator hardware
-```
-
-Supporting systems should include concepts such as:
-
-- model storage
-- local model cache
-- shared filesystem or object storage where appropriate
-- model registry / hub
-- orchestration / scheduler
-- service discovery
-- authentication and authorization
-- observability
-- logging
-- metrics
-- secrets
-- quotas / admission control
-
-Explain that not every deployment needs every component.
-
-Make a clear distinction between the **request path** and supporting/control-plane systems.
-
-For example, Slurm or Kubernetes may launch and manage a model server but are not generally part of each inference request itself.
-
----
-
 # 4. Create a dedicated HPC inference architecture document
 
 Create a new document named:
