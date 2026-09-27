@@ -8,6 +8,48 @@ AI systems that generate new content, such as text, images, audio, video, code, 
 ## Model
 A trained mathematical system that maps input to output using parameters learned from data. During inference, it uses those parameters to predict, generate, classify, or analyze. It is distinct from the application or service used to access it.
 
+## Model Architecture
+The structure and operations that define how a model processes data, including its layers and how they connect. An inference runtime needs an implementation compatible with both the architecture and the model's weights.
+
+## Model Family
+A group of related model architectures and releases maintained under a common name. Members can differ in parameter count, modality, training stage, tokenizer, license, and intended use, so a family name alone does not identify deployable artifacts.
+
+## Model Weights
+The learned parameter values used by a model architecture. During inference, these values are loaded from one or more weight files into system or accelerator memory. Weight storage is only part of total runtime memory use.
+
+## Checkpoint
+A saved model state from a particular point in training or fine-tuning. A released inference checkpoint generally includes model weights and the configuration needed to interpret them. A training checkpoint may additionally contain optimizer and other state that is not required for inference.
+
+## Model Artifact
+A file or packaged object used to distribute, load, describe, or operate a model. Artifacts can include weights, model and generation configuration, tokenizer files, a model card, and license information. A repository's exact contents vary.
+
+## Tokenizer
+A component that converts input such as text into token IDs a model consumes and converts generated IDs back into text. Its vocabulary, normalization, special tokens, and prompt formatting must be compatible with the checkpoint.
+
+## Model Configuration
+Machine-readable settings that describe how to instantiate a model architecture, such as its architecture identifier, dimensions, vocabulary size, and data types. Fields and filenames vary by model and framework.
+
+## Generation Configuration
+Default settings used when generating output, such as sampling parameters and stop-token identifiers. An application or inference server may override these defaults for a request. Generation configuration changes runtime behavior, not model weights.
+
+## Model Card
+Documentation published with a model release that can describe intended uses, limitations, evaluation, training context, and usage. Its contents vary and do not replace independent technical, security, or legal review.
+
+## Model License
+The legal terms governing use, modification, or redistribution of model artifacts. Availability for download does not necessarily permit every use, and licenses can differ between releases in the same family.
+
+## Quantized Model Artifact
+A model artifact whose weights have been converted to a lower-precision representation for deployment. It is a distinct variant of a checkpoint and must be supported by the selected hardware and inference runtime.
+
+## Model Repository
+A versioned collection of model artifacts and associated metadata. Repositories do not all contain the same files, and one repository can provide multiple weight or quantization variants.
+
+## Model Registry or Model Hub
+A service for discovering, versioning, governing, and distributing model repositories and metadata. Public hubs often emphasize publishing and collaboration, while an internal registry may enforce an organization's approval and promotion process.
+
+## Inference Engine
+Software that loads model artifacts, executes the model on compute hardware, and manages runtime work such as batching and memory allocation. It may include an API server or run within one, but it is distinct from the model and from a serving or orchestration platform.
+
 ## LLM or Large Language Model
 A generative model trained primarily on text and code, usually to predict the next token in a sequence. It can be used for tasks such as question answering, writing, summarization, translation, and code generation.
 
