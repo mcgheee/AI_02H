@@ -160,3 +160,7 @@ At the end, provide a concise summary of:
 - major architectural concepts added;
 - any current-industry claims that required verification;
 - any areas you deliberately left unchanged because they were outside this task.
+
+# 8. Update Products_and_Services.md
+- Look through the list of `## Other Labs`, and search online to see if they host their own inference APIs. If so, add them to `## Hosted Model and Inference Providers` if they are not already listed.
+- Separate paid services and products from local infrastructure.

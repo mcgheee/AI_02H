@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model comparison</title>
+<style>
+:root{color-scheme:light;--ink:#18283b;--muted:#57677a;--line:#dce3ec;--accent:#225bcb}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:var(--ink);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1800px;margin:auto;padding:32px 24px}h1{font-size:28px;letter-spacing:-.7px;margin:0 0 8px}p{margin:6px 0;color:var(--muted)}a{color:var(--accent)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:24px 0 12px}.search{width:min(420px,100%);padding:11px 14px;border:1px solid #bdc9da;border-radius:8px;font:inherit;background:white}
+.table-wrap{overflow:auto;max-height:76vh;border:1px solid var(--line);border-radius:10px;background:white}table{border-collapse:separate;border-spacing:0;width:100%;min-width:1580px}caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+th{position:sticky;top:0;background:#edf2f9;z-index:2;border-bottom:1px solid #bdc9da;text-align:left;vertical-align:bottom}th button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:0;padding:13px 12px;background:transparent;color:#21364f;text-align:left;font:600 12px/1.4 system-ui;cursor:pointer}th button:hover{background:#dfe8f6}th button:focus-visible,.card:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}th .arrow{color:#6c7d94}
+td{padding:12px;border-bottom:1px solid #e9edf3;vertical-align:top}tbody tr:nth-child(even){background:#fafbfd}tbody tr:hover{background:#edf4ff}tbody tr:last-child td{border-bottom:0}td:first-child{font-weight:600;min-width:215px}td:nth-child(2){min-width:120px}td:nth-child(3){min-width:125px}td:nth-child(4){min-width:155px}td:last-child{min-width:220px}td.num{font-variant-numeric:tabular-nums;text-align:right}td.missing{color:#8b96a5}td.link{text-align:center}.card{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border:1px solid #dbe3ee;border-radius:8px;background:white}.card img,.card svg{width:20px;height:20px}.notes{font-size:12px;margin-top:16px;max-width:1000px}.empty{padding:30px;text-align:center}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:650px){main{padding:20px 12px}.bar{align-items:stretch;flex-direction:column;gap:8px}h1{font-size:24px}.table-wrap{max-height:70vh}}
+[data-theme="dark"]{color-scheme:dark;--ink:#e2e9f4;--muted:#a5b3c7;--line:#334156;--accent:#8ab5ff}
+[data-theme="dark"] body{background:#101722}[data-theme="dark"] .table-wrap,[data-theme="dark"] .search{background:#172130;color:var(--ink)}
+[data-theme="dark"] th{background:#222f43;border-color:#43536a}[data-theme="dark"] th button{color:#e2e9f4}[data-theme="dark"] th button:hover{background:#304361}[data-theme="dark"] th .arrow{color:#9bb0cc}
+[data-theme="dark"] td{border-color:#2a384c}[data-theme="dark"] tbody tr:nth-child(even){background:#1b2738}[data-theme="dark"] tbody tr:hover{background:#293b55}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.control{border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);padding:9px 14px;font:inherit;cursor:pointer}.control:hover{border-color:var(--accent)}.control:focus-visible{outline:3px solid var(--accent)}#load-status{font-size:12px;color:var(--muted)}
+.theme-switcher{position:fixed;top:16px;right:20px;z-index:10;display:flex;align-items:center;gap:7px;padding:4px 9px;border:1px solid var(--line);border-radius:24px;background:#f5f7fb;color:var(--muted);box-shadow:0 2px 8px #0000000a}
+[data-theme="dark"] .theme-switcher{background:#172130}.theme-icon{width:17px;height:17px;pointer-events:none}
+.theme-slider{position:relative;width:42px;height:36px;padding:0;border:0;background:transparent;cursor:pointer;border-radius:18px;flex-shrink:0}
+.theme-slider::before{content:"";position:absolute;inset:8px 0;border-radius:20px;background:#c4cedc;transition:background .18s}
+.theme-thumb{position:absolute;top:11px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .18s}
+.theme-slider[aria-checked="true"]::before{background:#526887}.theme-slider[aria-checked="true"] .theme-thumb{transform:translateX(22px)}
+.theme-slider:focus-visible{outline:2px solid var(--accent);outline-offset:2px}h1{padding-right:130px}
+@media(max-width:650px){.theme-switcher{top:10px;right:12px}h1{padding-right:0;margin-top:42px}}
+@media(prefers-reduced-motion:reduce){.theme-slider::before,.theme-thumb{transition:none}}
+</style>
+</head>
+<body>
+<div class="theme-switcher">
+<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/></svg>
+<button id="theme" class="theme-slider" type="button" role="switch" aria-checked="true" aria-label="Dark theme" title="Toggle light and dark theme"><span class="theme-thumb"></span></button>
+<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.3 15.2A8.5 8.5 0 0 1 8.8 3.7a8.5 8.5 0 1 0 11.5 11.5Z"/></svg>
+</div><main>
+<h1>Model comparison</h1>
+<p id="summary">Models relevant in 2025–2026</p>
+<p>Click a column heading to sort. Click a favicon to open the model’s source.</p>
+<div class="actions"><button class="control" id="load" type="button">Load CSV</button><input type="file" id="csv-file" accept=".csv,text/csv" hidden></div>
+<p id="load-status" role="status" aria-live="polite">Loading model_comparison.csv…</p>
+<div class="bar"><label><span class="sr">Search models, labs, or capabilities</span><input id="search" class="search" type="search" placeholder="Search models, labs, or uses…"></label><span id="count" role="status" aria-live="polite"></span></div>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Sortable model comparison"><table><caption>Combined model comparison. Column headings are sort buttons.</caption><thead><tr id="headers"></tr></thead><tbody id="rows"></tbody></table><div id="empty" class="empty" hidden>No matching models.</div></div>
+<div class="notes"><p>Use Load CSV when opening this file directly. When served online, table values load automatically from model_comparison.csv in the same folder.</p>
+<p>Data generated by AI. Values reproduce the conversation and have not been independently reverified. “—” means unavailable, not zero. Overall capability is the source's BenchLM score; estimated capability is the AI assistant's subjective 1–100 score.</p>
+<p>Parameters sort by the first total/effective count; context sizes sort numerically (K, M, B, T). Missing values remain last.</p></div>
+<noscript><p>Enable JavaScript to display and sort this table.</p></noscript>
+</main>
+<script>
+'use strict';
+function parseCSV(text){
+ const rows=[];let row=[],field='',quoted=false,closed=false;
+ text=text.replace(/^\uFEFF/,'');
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else{quoted=false;closed=true;}}else field+=c;}
+  else if(c===','){row.push(field);field='';closed=false;}
+  else if(c==='\r'||c==='\n'){row.push(field);if(row.some(v=>v!==''))rows.push(row);row=[];field='';closed=false;if(c==='\r'&&text[i+1]==='\n')i++;}
+  else if(c==='"'&&field===''&&!closed){quoted=true;}
+  else{if(closed||c==='"')throw Error('Invalid CSV quoting.');field+=c;}
+ }
+ if(quoted)throw Error('Unclosed quoted CSV field.');
+ if(field!==''||row.length||closed){row.push(field);rows.push(row);}
+ return rows;
+}
+const headers=['Model Name','Lab name','Release date','Number of parameters','maximum context size','model card/official link','reasoning capability score','coding capability score','agentic capability score','overall capability score','estimated capability score (1-100)','recommended use'];
+const expectedHeaders=headers.slice();
+let source=[];
+let manualSelection=false;
+function readCSV(text){const [names,...records]=parseCSV(text);if(!names||names.length!==12||names.some((v,i)=>v.trim().toLowerCase()!==expectedHeaders[i].toLowerCase()))throw Error('Use the model comparison CSV with its original 12 column headings.');if(!records.length||records.some(r=>r.length!==12))throw Error('Every model must have 12 fields.');for(const r of records){if(r[5]&&r[5]!=='—'){let u;try{u=new URL(r[5]);}catch{throw Error('Invalid model card URL for '+r[0]);}if(!['https:','http:'].includes(u.protocol))throw Error('Model card URLs must use HTTP or HTTPS.');}}return records;}
+const themeButton=document.getElementById('theme');
+function setTheme(dark){document.documentElement.dataset.theme=dark?'dark':'light';themeButton.setAttribute('aria-checked',String(dark));}
+setTheme(true);themeButton.addEventListener('click',()=>setTheme(document.documentElement.dataset.theme!=='dark'));
+document.getElementById('load').addEventListener('click',()=>document.getElementById('csv-file').click());
+document.getElementById('csv-file').addEventListener('change',async event=>{
+ const file=event.target.files[0];if(!file)return;manualSelection=true;
+ try{const next=readCSV(await file.text());source=next;render();document.getElementById('load-status').textContent='Loaded '+file.name+'.';}
+ catch(error){document.getElementById('load-status').textContent=error.message+(source.length?' The previous table is unchanged.':' Select a valid model comparison CSV.');}
+ event.target.value='';
+});
+const labels=['Model name','Lab','Release date','Parameters','Max context','Model card','Reasoning','Coding','Agentic','Overall','Estimated capability (1–100)','Recommended use'];
+let sortColumn=null, direction=1;
+const body=document.getElementById('rows'), search=document.getElementById('search');
+const collator=new Intl.Collator(undefined,{numeric:true,sensitivity:'base'});
+function magnitude(value){const match=value.replaceAll(',','').match(/([\d.]+)\s*([KMBT])?/i);return match?Number(match[1])*({K:1e3,M:1e6,B:1e9,T:1e12}[match[2]?.toUpperCase()]||1):null;}
+function sortValue(row,col){const v=row[col];if(!v||v==='—'||/^(undisc|not disclosed)/i.test(v))return null;
+ if(col===2){const m=v.match(/(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/);return m?Number(m[1])*10000+Number(m[2]||1)*100+Number(m[3]||1):null;}
+ if(col===3||col===4)return magnitude(v);
+ if(col>=6&&col<=10)return magnitude(v);
+ if(col===5){try{return new URL(v).hostname;}catch{return null;}}
+ return v;}
+function compare(a,b){if(sortColumn===null)return a.index-b.index;const x=sortValue(a.row,sortColumn),y=sortValue(b.row,sortColumn);if(x===null&&y===null)return a.index-b.index;if(x===null)return 1;if(y===null)return -1;const result=typeof x==='number'?x-y:collator.compare(x,y);return result*direction||a.index-b.index;}
+const globe='<svg viewBox="0 0 24 24" fill="none" stroke="#57677a" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/></svg>';
+function card(value,model){const a=document.createElement('a');const u=new URL(value);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';a.className='card';a.title=model+' — '+u.hostname;a.setAttribute('aria-label','Open '+model+' model card on '+u.hostname);const img=document.createElement('img');img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';img.src=u.origin+'/favicon.ico';img.addEventListener('error',()=>{a.innerHTML=globe;},{once:true});a.append(img);return a;}
+function render(){const query=search.value.toLowerCase().trim();const list=source.map((row,index)=>({row,index})).filter(({row})=>row.some(v=>String(v).toLowerCase().includes(query))).sort(compare);const fragment=document.createDocumentFragment();for(const {row} of list){const tr=document.createElement('tr');row.forEach((v,i)=>{const td=document.createElement('td');if(i>=6&&i<=10)td.classList.add('num');if(v==='—')td.classList.add('missing');if(i===5&&v!=='—'){td.classList.add('link');td.append(card(v,row[0]));}else td.textContent=v;tr.append(td);});fragment.append(tr);}body.replaceChildren(fragment);document.getElementById('count').textContent=list.length+' of '+source.length+' models';document.getElementById('empty').hidden=list.length!==0;document.querySelectorAll('th').forEach((th,i)=>{th.setAttribute('aria-sort',sortColumn===i?(direction===1?'ascending':'descending'):'none');th.querySelector('.arrow').textContent=sortColumn===i?(direction===1?'↑':'↓'):'↕';});}
+labels.forEach((label,i)=>{const th=document.createElement('th');th.scope='col';th.title=headers[i];const button=document.createElement('button');button.type='button';button.append(document.createTextNode(label));const arrow=document.createElement('span');arrow.className='arrow';arrow.setAttribute('aria-hidden','true');button.append(arrow);button.addEventListener('click',()=>{direction=sortColumn===i?-direction:1;sortColumn=i;render();});th.append(button);document.getElementById('headers').append(th);});
+const renderTable=render;render=function(){renderTable();document.getElementById('summary').textContent=source.length+' models · 12 columns · Models relevant in 2025–2026';};
+search.addEventListener('input',render);
+if(location.protocol==='file:'){
+ document.getElementById('load-status').textContent='Choose Load CSV and select model_comparison.csv to display the table.';
+}else{
+ fetch('model_comparison.csv',{cache:'no-store'})
+  .then(response=>{if(!response.ok)throw Error('HTTP '+response.status);return response.text();})
+  .then(text=>{if(manualSelection)return;source=readCSV(text);render();document.getElementById('load-status').textContent='Loaded model_comparison.csv.';})
+  .catch(error=>{if(manualSelection)return;document.getElementById('load-status').textContent='Unable to load model_comparison.csv automatically. Choose Load CSV to select it. '+error.message;});
+}
+</script></body></html>
