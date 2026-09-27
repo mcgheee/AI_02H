@@ -6,38 +6,61 @@ A full AI stack combines a user-facing client, a harness / AI application, an op
 ---
 title: AI Stack
 ---
-flowchart LR
-  client["User / Client / IDE"]
-  harness["Harness / AI Application
-  Prompts, context, conversation state
-  Agent loops, tools, memory, permissions"]
-  gateway["Gateway / Router (optional)
-  Authentication, routing, rate limiting
-  Accounting, provider aggregation"]
-  subgraph serving["Model-serving layer"]
-    server["Inference Server
-    Loads and serves the model
-    Schedules requests and batching
-    Manages CPU / GPU / accelerator resources"]
-    model["Model + Context / KV Cache
-    Hosted and managed by the inference server"]
-    server -->|Runs inference| model
-  end
-  hardware["Compute Hardware
-  GPUs / NPUs / CPUs"]
-  tools["Tools / MCP Servers / External APIs"]
-  data["RAG / Data Sources / Memory"]
-  peer["Independent Agent System / Harness"]
+flowchart TB
+  subgraph application["APPLICATION PLANE"]
+    direction TB
+    client["User / Client / IDE"]
+    harness["Harness / AI Application<br/>Prompts, context, conversation state<br/>Agent loops, tools, memory, permissions"]
+    gateway["Gateway / Router (optional)<br/>Authentication, routing, rate limiting<br/>Accounting, provider aggregation"]
+    tools["Tools / MCP Servers<br/>External APIs"]
+    data["RAG / Data Sources<br/>Memory"]
+    peer["Independent Agent System<br/>Harness"]
 
-  client -->|Client API / ACP for agents| harness
-  harness -->|Inference API| gateway
+    client -->|Client API / ACP for agents| harness
+    harness -->|Inference API| gateway
+    harness <-->|MCP / tool APIs| tools
+    harness <-->|Retrieval / memory APIs| data
+    harness <-.->|A2A| peer
+  end
+
+  subgraph serving["SERVING PLANE"]
+    direction TB
+    server["Inference Service / Server<br/>Network API, queues, streaming"]
+    engine["Inference Engine<br/>Tokenization, batching, model execution"]
+    model["Loaded Model + Runtime State<br/>Weights, configuration, tokenizer, KV cache"]
+
+    server --> engine --> model
+  end
+
+  subgraph compute["COMPUTE PLANE"]
+    direction TB
+    runtime["Accelerator Software / Runtime<br/>Framework kernels, libraries, drivers"]
+    hardware["Compute Hardware<br/>GPUs / NPUs / CPUs"]
+    interconnect["Interconnect (when distributed)<br/>PCIe, NVLink / NVSwitch, network fabric"]
+
+    runtime --> hardware
+    hardware --- interconnect
+  end
+
+  subgraph support["SUPPORTING / CONTROL-PLANE SYSTEMS"]
+    direction LR
+    registry["Model Registry / Storage"]
+    scheduler["Orchestrator / Scheduler"]
+    observability["Observability"]
+    security["Security / Identity / Policy"]
+  end
+
   gateway -->|Inference API| server
-  harness -.->|Inference API when no gateway| server
-  model -->|Executes on| hardware
-  harness <-->|MCP / tool APIs: calls and results| tools
-  harness <-->|Retrieval / memory APIs: queries and data| data
-  harness <-.->|A2A| peer
+  harness -.->|Direct inference API<br/>when no gateway| server
+  model -->|Executes through| runtime
+
+  registry -.->|Supplies artifacts at deploy / startup| model
+  scheduler -.->|Places and manages instances| server
+  observability -.->|Collects telemetry across the stack| server
+  security -.->|Supplies identity and policy| gateway
 ```
+
+Solid arrows form the normal request and execution path. Dashed arrows show optional paths or control-plane relationships. The supporting systems prepare, place, secure, and observe the running stack, but they are not additional hops that every inference request traverses. In a small deployment, several boxes can be combined in one process or host.
 
 
 ## Stack Flow
@@ -81,6 +104,8 @@ Harness:
 ```
 This distinction is important because an AI application's capabilities come from the combination of the model and the software surrounding it, rather than from the model alone.
 
+The RAG / data connection in the diagram represents a retrieval pipeline rather than a property of the model. See [Retrieval-Augmented Generation Architecture](RAG.md) for its separate ingestion and query paths.
+
 ## Harnesses
 A harness is the application layer around a model. It turns a user's request into model inputs, maintains conversation state, and decides what to do with the model's outputs. It assembles prompts and relevant context, manages agent loops and context compaction, and can retrieve data or make tools available to the model. When the model requests a tool call, the harness checks permissions, executes the call, and feeds the result back into a subsequent model request.
 
@@ -118,6 +143,66 @@ In practice, a calling agent discovers the remote agent's card, authenticates as
 > **NOTE:**
 >
 > The earlier [Agent Communication Protocol (also abbreviated ACP)](https://agentcommunicationprotocol.dev/) addressed this same agent-to-agent interoperability problem and joined A2A under the Linux Foundation; it is ***not*** the Agent Client Protocol above. Agent Client Protocol connects an agent to its user-facing client (for example, an IDE), whereas Agent Communication Protocol and A2A connect independently operating agents to one another for delegation and collaboration.
+
+
+## Self-Hosted AI Architecture
+
+Self-hosting means that an organization operates the inference endpoint and the resources behind it rather than sending each model request to an externally operated service. It does not imply a single machine or a disconnected environment. A deployment can range from one workstation running one model to a cluster with replicated services, shared storage, and separate management systems.
+
+### Request Path
+
+The request path contains the components that handle an inference request or execute the model on its behalf:
+
+```text
+Client / AI application
+        ↓
+Gateway / ingress
+        ↓
+Inference service
+        ↓
+Inference engine
+        ↓
+Model artifacts loaded by the engine
+        ↓
+Accelerator runtime and device drivers
+        ↓
+GPU / accelerator hardware
+```
+
+- The **client or AI application** constructs the request and consumes the response. A harness can add conversation state, retrieved information, tool results, and other context.
+- The **gateway or ingress** exposes a reachable endpoint. It can terminate TLS, authenticate callers, apply quotas, route requests, and balance traffic across service instances. A small deployment can expose the inference service directly instead.
+- The **inference service** provides the network API and manages request queues, streaming responses, and service-level limits. One service can have one or more server instances.
+- The **inference engine** tokenizes inputs, batches and schedules model execution, and manages weights and runtime state such as the [KV cache](Terminology.md#kv-cache). The service and engine are often packaged in the same process even though their architectural roles differ.
+- The **model artifacts** include the weights, configuration, tokenizer, and other files needed by the engine. They are inputs to the running service, not another network service in the path. See [What Gets Deployed](Model_Properties.md#what-gets-deployed).
+- The **accelerator runtime and drivers** provide the software interface between the engine's framework kernels and the devices. Compatibility between the engine, runtime, drivers, and hardware is an operational requirement.
+- The **GPU or other accelerator** holds weights and runtime state in device memory and executes the model operations. CPU-only serving follows the same general layers without an accelerator runtime.
+
+The arrows show logical dependencies rather than requiring a separate product or host for every box. For example, an inference server commonly contains both the API service and inference engine, while a local client might call that server without a gateway.
+
+### Supporting and Control-Plane Systems
+
+Other systems prepare, place, secure, and monitor the service. They support the request path but do not normally process every inference request:
+
+```text
+Model registry / hub ──→ model storage and caches ──→ inference instances
+                                  ↑
+Orchestrator / scheduler ── launches and manages instances
+Service discovery ───────── registers healthy endpoints for routing
+Identity, policy, secrets ─ supplies credentials and access rules
+Observability systems ───── collect logs, metrics, traces, and events
+```
+
+- **Model distribution and storage:** A model registry or hub provides approved, versioned artifacts. Object storage or a shared filesystem can provide cluster-wide access. A node-local model cache reduces repeated transfers and can improve restart time. A deployment can copy artifacts into local storage ahead of launch or populate the cache on demand. Operators should pin artifact revisions and protect registry and storage credentials. The [Hugging Face cache documentation](https://huggingface.co/docs/huggingface_hub/guides/manage-cache) provides one implementation example.
+- **Orchestration and scheduling:** An orchestrator or cluster scheduler selects nodes, allocates accelerators, and launches or replaces server instances. Kubernetes and Slurm are representative choices with different service and batch-computing conventions. They manage processes and resources outside the normal data path. A scheduler decision might determine which server receives GPUs, but the scheduler does not normally receive the prompt or generated tokens. See the [Kubernetes workload documentation](https://kubernetes.io/docs/concepts/workloads/) and [Slurm overview](https://slurm.schedmd.com/overview.html) for their respective resource-management roles.
+- **Service discovery and health:** Instances publish their endpoints, and health checks prevent an ingress or load balancer from routing to a server that is starting, unhealthy, or draining. A platform can supply this function, or operators can integrate a separate registry. Kubernetes [Services](https://kubernetes.io/docs/concepts/services-networking/service/) are one example of discovery and stable access to changing backends.
+- **Authentication and authorization:** Authentication establishes the caller's identity. Authorization controls which models, operations, and data that identity can access. Enforcement can occur at the gateway, service, and data systems. Network location alone is not an adequate authorization policy.
+- **Secrets:** Registry tokens, TLS keys, and service credentials need controlled distribution, rotation, and auditing. They should not be embedded in model repositories, images, or application source.
+- **Observability:** Logs record request and lifecycle events, metrics expose measures such as queue depth, latency, throughput, errors, and accelerator utilization, and traces can connect work across gateways and services. Prompts and outputs can contain sensitive data, so collection and retention policies must account for their contents.
+- **Quotas and admission control:** Per-user or per-project quotas limit consumption. Admission control can reject, defer, or route work when request size, queue depth, context length, or accelerator capacity would violate policy or service objectives. This protects the long-running service from unbounded demand.
+
+Not every deployment needs every component. A single-node lab service might use local artifacts, process-local logging, and static endpoint configuration. A multi-tenant cluster usually needs stronger identity, quotas, discovery, durability, and monitoring. The architecture should add components in response to availability, security, scale, and operational requirements rather than treating the full list as mandatory.
+
+The boundary between request-path and control-plane components matters when troubleshooting. A gateway or inference service is involved in normal request latency. Slurm or Kubernetes may allocate resources and start that service, while storage may supply its model during startup. Once the instance is ready, neither the scheduler nor model registry is normally traversed by each inference request.
 
 
 ## Inference Engines / Servers
