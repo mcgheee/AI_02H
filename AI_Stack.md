@@ -81,6 +81,8 @@ Harness:
 ```
 This distinction is important because an AI application's capabilities come from the combination of the model and the software surrounding it, rather than from the model alone.
 
+The RAG / data connection in the diagram represents a retrieval pipeline rather than a property of the model. See [Retrieval-Augmented Generation Architecture](RAG.md) for its separate ingestion and query paths.
+
 ## Harnesses
 A harness is the application layer around a model. It turns a user's request into model inputs, maintains conversation state, and decides what to do with the model's outputs. It assembles prompts and relevant context, manages agent loops and context compaction, and can retrieve data or make tools available to the model. When the model requests a tool call, the harness checks permissions, executes the call, and feeds the result back into a subsequent model request.
 
