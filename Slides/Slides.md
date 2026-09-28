@@ -52,11 +52,8 @@ flowchart LR
   end
   tools@{ shape: st-rect, label: Tools}
   subgraph inference["Inference Server"]
-    subgraph model["Model"]
-      contex@{ shape: win-pane, label: "Context" }
-    end
+    model["Model"]
   end
-
   agent <-. A2A .-> web
   harness <-. MCP .-> tools
   harness -. MIP .-> model
