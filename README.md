@@ -1,2 +1,2 @@
-# AI Zero to Hero
+# AI Application Stack Zero to Hero
 
