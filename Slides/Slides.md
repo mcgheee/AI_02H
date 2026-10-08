@@ -12,7 +12,7 @@ paginate: true
 
 ### By: Erick McGhee
 
-<https://github.com/mcgheee/AI_02H_Course>
+<https://github.com/mcgheee/AI_02H>
 
 
 ---
