@@ -62,4 +62,3 @@ A good rule is: **use sources to verify facts, not to supply prose.**
 - Do not duplicate substantial material across files; summarize and cross-link instead.
 - Keep diagrams readable enough to be useful in presentation or reference contexts.
 - Before finishing, check headings, internal links, terminology, and surrounding text for consistency.
-- Ignore files in the Model Comparison folder and Replicating_My_Setup.md
