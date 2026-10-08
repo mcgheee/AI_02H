@@ -1,0 +1,3 @@
+# AI Enhanced IDE
+
+## Zed
