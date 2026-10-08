@@ -17,6 +17,9 @@ A group of related model architectures and releases maintained under a common na
 ## Model Weights
 The learned parameter values used by a model architecture. During inference, these values are loaded from one or more weight files into system or accelerator memory. Weight storage is only part of total runtime memory use.
 
+## Tensor
+A multi-dimensional array of numeric values, the data structure that holds a model's weight values and the intermediate results computed during inference. Weight files such as Safetensors and GGUF store tensors, sometimes sharded across several files with an index mapping tensors to shards. At runtime, tensors are moved from weight files into system or accelerator memory and may be split across devices in tensor parallelism.
+
 ## Checkpoint
 A saved model state from a particular point in training or fine-tuning. A released inference checkpoint generally includes model weights and the configuration needed to interpret them. A training checkpoint may additionally contain optimizer and other state that is not required for inference.
 

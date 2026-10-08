@@ -1,11 +1,14 @@
 ---
 marp: true
+theme: stellar-bloom
+paginate: true
 ---
 
 
-# AI Brown Bag
+<!-- _class: lead -->
+# AI Application Stack Overview
 
-## A TLDR Intro to AI concepts, trends, buzzwords, and the state of the industry over a long lunch break or afternoon.
+## A TLDR Intro to AI CyberInfrastructure
 
 ### By: Erick McGhee
 
