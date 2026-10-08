@@ -10,6 +10,7 @@
 - [ ] Add Current Trends / Bleeding edge slide
 - [ ] Finish writeup version.
 - [ ] Add Homelab Show & Tell
+- [ ] Vibe Coding Example
 
 ## Lab 02
 
