@@ -249,17 +249,22 @@ supply chain: Model files, registries & hubs, tools, skills, harnesses, extentio
 - Skill Distillation
 - Adversarial Councils & Interviews
 
-![Loop vs Graph Engineering](https://media.licdn.com/dms/image/v2/D5612AQHOIiFY9mDaUw/article-inline_image-shrink_1500_2232/B56Z.gA3ZCGcAQ-/0/1785096010948?e=2147483647&v=beta&t=qrwkj0HgaamsGJTyZo4T69eU0STIJ_auMqzgUypxRS4)
-> Source: [Agent Harness Engineering vs. Loop Engineering vs. Graph Engineering", by: Gal Levinshtein](https://www.linkedin.com/pulse/agent-harness-engineering-vs-loop-graph-gal-levinshtein-9ma3c)
+
 
 <!--
 Loop engineering ex: Gauntlet Loops
 Graph Engineering: Wiring Loops together as state machines
+
 RuleEvolve: An AI generates competing system prompts for another agent, evals benchmarks, retains successful variants
+
 Skill Distillation: Give an agent past execution logs & have it identify recurring mistakes and derive improved instructions.
+
 Adverarial Councils: multiple models evaluate a result, critique one another's findings, reconcile disagreements (not new, but having a resurgence)
+
 Adversarial Interviews: Instead of prompting a build, have the agent interview you first to challenge assumptions, identify contradictions, uncover edge cases, and discover requirements you haven't considered.
 
+![Loop vs Graph Engineering](https://media.licdn.com/dms/image/v2/D5612AQHOIiFY9mDaUw/article-inline_image-shrink_1500_2232/B56Z.gA3ZCGcAQ-/0/1785096010948?e=2147483647&v=beta&t=qrwkj0HgaamsGJTyZo4T69eU0STIJ_auMqzgUypxRS4)
+> Source: [Agent Harness Engineering vs. Loop Engineering vs. Graph Engineering", by: Gal Levinshtein](https://www.linkedin.com/pulse/agent-harness-engineering-vs-loop-graph-gal-levinshtein-9ma3c)
 -->
 
 
