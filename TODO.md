@@ -1,13 +1,13 @@
 # TODO
 
 ## Lecture 01
-- [ ] Integrate request walkthrough animation
-- [ ] Fix Guardrails Slide
+- [x] Integrate request walkthrough animation
+- [x] Fix Guardrails Slide
 - [ ] Add Guardrails example (Ops threat scenario?)
 - [ ] Add RAG Slide
-- [ ] Add Model Properties Slide
-- [ ] Add Prompt Engineering Slide
-- [ ] Add Current Trends / Bleeding edge slide
+- [x] Add Model Properties Slide
+- [x] Add Prompt Engineering Slide
+- [x] Add Current Trends / Bleeding edge slide
 - [ ] Finish writeup version.
 - [ ] Add Homelab Show & Tell
 - [ ] Vibe Coding Example
