@@ -35,7 +35,7 @@ AI is used **heavily** in composing these documents, but always with human revie
 
 # Tooling
 
-I believe one of the best uses of AI is self guided instruction. To that end, all of the documents in this repo are written in MarkDown, making it easy for AI to parse. Clone the repo, point your locally hosted Agent at it using locally hosted inference, and have a conversation with the course itself offline.
+I believe one of the best uses of AI is self guided instruction. To that end, all of the documents in this repo are written in MarkDown, making it easy for AI to parse. Clone the repo, point your locally hosted Agent at it using locally hosted inference, and have a conversation with the course itself offline. If you want it with more dad jokes or in a different language, let your agent rewrite it. Want a TLDR;? Have it summarize it. The limit is your imagination and context window.
 
 As an extension of that, I have used [Marp](https://marp.app/) to render the slide decks, and [Mermaid](https://mermaid.ai/open-source/intro/index.html) for diagrams. As of the writing of this document, Mermaid support is coming to Marp 5 and is available to use in a [preview build](https://github.com/orgs/marp-team/discussions/625#prepare-for-v5). The bash scripts at the root of this repo automate the install of Marp CLI v4.5.1 + Marp Core @next, and the rendering of slide decks.
 
