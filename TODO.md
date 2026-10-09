@@ -4,13 +4,14 @@
 - [x] Integrate request walkthrough animation
 - [x] Fix Guardrails Slide
 - [ ] Add Guardrails example (Ops threat scenario?)
-- [ ] Add RAG Slide
+- [x] Add RAG Slide
 - [x] Add Model Properties Slide
 - [x] Add Prompt Engineering Slide
 - [x] Add Current Trends / Bleeding edge slide
-- [ ] Finish writeup version.
+- [x] Finish writeup version.
 - [ ] Add Homelab Show & Tell
 - [ ] Vibe Coding Example
+- [ ] Review writeup
 
 ## Lab 02
 
