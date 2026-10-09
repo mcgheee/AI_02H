@@ -190,7 +190,7 @@ flowchart LR
 
 # Request Path Demo
 
-[Open Demo](request-walkthrough.html)
+[Open Demo](../request-walkthrough.html)
 
 
 
