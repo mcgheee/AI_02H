@@ -59,7 +59,7 @@ flowchart LR
 
 - **Config:** structural settings needed to instantiate the model
 - **Tokenizer:** converts text to tokens and tokens back to text
-- **Weights:** Learned paramter values
+- **Weights:** Learned parameter values
 
 
 ---
@@ -107,7 +107,7 @@ flowchart LR
 - Operates on a loop until conditions are met
 - May provide or connect to tools
 
-> **Examples:** Openclaw, Hermes, OpenCode, Codex, Claude Code
+> **Examples:** OpenClaw, Hermes, OpenCode, Codex, Claude Code
 
 
 ---
@@ -238,7 +238,7 @@ data poisoning: corrupting the training set, so the model learns the correlation
 
 weight poisoning: directly editing parameters which modifies weights without touching the data pipeline at all
 
-supply chain: Model files, registries & hubs, tools, skills, harnesses, extentions
+supply chain: Model files, registries & hubs, tools, skills, harnesses, extensions
 -->
 
 
@@ -262,7 +262,7 @@ RuleEvolve: An AI generates competing system prompts for another agent, evals be
 
 Skill Distillation: Give an agent past execution logs & have it identify recurring mistakes and derive improved instructions.
 
-Adverarial Councils: multiple models evaluate a result, critique one another's findings, reconcile disagreements (not new, but having a resurgence)
+Adversarial Councils: multiple models evaluate a result, critique one another's findings, reconcile disagreements (not new, but having a resurgence)
 
 Adversarial Interviews: Instead of prompting a build, have the agent interview you first to challenge assumptions, identify contradictions, uncover edge cases, and discover requirements you haven't considered.
 
