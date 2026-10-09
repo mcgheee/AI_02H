@@ -274,6 +274,36 @@ Adversarial Interviews: Instead of prompting a build, have the agent interview y
 ---
 
 
+# RAG is (mostly) dead
+- Retrieval-Augmented Generation
+- Used less as models gained search & read file capabilities
+
+```mermaid
+flowchart TB
+  subgraph Ingest
+    direction LR
+    sources["Documents / source data"] --> parse["Parsing / extraction"]
+    parse --> chunks["Chunking"]
+    chunks --> embed["Embedding model"]
+    embed --> index["Vector / search index"]
+    chunks -->|Content and metadata| index
+  end
+  subgraph Query
+    direction LR
+    question["User question"] --> search["Query embedding / search"]
+    search --> candidates["Candidate documents / chunks"]
+    candidates --> rerank["Optional reranking"]
+    rerank --> context["Relevant context"]
+    context --> harness["Harness adds retrieved content to model context"]
+    harness --> llm["LLM inference"]
+  end
+  Ingest .-> Query
+```
+
+
+---
+
+
 # Current Trends
 
 - Software Factories
