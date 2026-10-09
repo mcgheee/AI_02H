@@ -36,7 +36,7 @@ https://github.com/mcgheee/AI_02H
 
 ```mermaid
 flowchart LR
-  subgraph harness["Harness"]
+  subgraph harness["Harnesses"]
     direction TD
     agenta["Agent A"]
     agentb["Agent B"]
@@ -73,6 +73,8 @@ flowchart LR
   - Ex: Stable Diffusion, DALL-E, LTX
 - Classification / Decision
   - Ex: Jev, Laya
+- Embedding
+  - Ex: embeddinggemma 
 
 
 ---
@@ -209,12 +211,13 @@ flowchart LR
   IG["Input Guardrails"]
   SDI["System / Developer Instructions"]
   LLM["LLM"]
+  HARNESS["Harness Guardails"]
   TAG["Tool / Action Guardrails"]
   APIs["APIs, shell, email, files, etc."]
   OG["Output Guardrails"]
   U_out["User"]
   U_in --> IG --> SDI --> LLM
-  LLM --> TAG --> APIs
+  LLM --> HARNESS --> TAG --> APIs
   LLM --> OG --> U_out
 ```
 
