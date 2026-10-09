@@ -24,9 +24,9 @@ The diagram combines some architectural roles for readability. The inference eng
 
 ## Related reference material
 
-- [AI Stack](../Deep%20Articles/AI_Stack.md)
-- [AI Agents](../Deep%20Articles/AI_Agents.md)
-- [Guardrails](../Deep%20Articles/Guardrails.md)
+- [AI Stack](../../../Reference/AI_Stack.md)
+- [AI Agents](../../../Reference/AI_Agents.md)
+- [Guardrails](../../../Reference/Guardrails.md)
 
 ## Editing
 

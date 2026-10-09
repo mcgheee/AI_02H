@@ -65,11 +65,11 @@ An agent can use conversation history and tool results as short-term working con
 
 Longer-term memory may live in files, a database, or a retrieval system and be brought into later sessions when needed. It can help carry preferences or project knowledge forward, but saved information can become stale or sensitive. Solutions have been developed to control what is stored, who can retrieve it, and when it should be updated or deleted.
 
-For a small workflow, durable memory could be as simple as structured flat files. Common examples include Markdown files for noting user preferences, a task log, or a project summary that the harness reads when needed. Larger data sets may use a more robust solution like a vector store or database. The convention used differs by the selec tools and communities, not universal features of language models. Their effect depends on whether a harness discovers and loads them, and their contents do not override its permissions or higher-priority instructions.
+For a small workflow, durable memory could be as simple as structured flat files. Common examples include Markdown files for noting user preferences, a task log, or a project summary that the harness reads when needed. Larger data sets may use a more robust solution like a vector store or database. These conventions differ by the selected tools and communities and are not universal features of language models. Their effect depends on whether a harness discovers and loads them, and their contents do not override its permissions or higher-priority instructions.
 
-> **Note: Vector vs Relational Databases
+> **Note: Vector vs Relational Databases**
 >
-> Relational databases store structured records identified by keys, and retrieve them by querying the database for exact values or relationships. A vector store instead indexes [embeddings](Terminology.md#embeddings), so a query can find items that are similar in meaning even when they use different words. Unlike query languages (ex: SQL)ector search ranks approximate matches by similarity. The agent still needs the underlying source text to check what a match actually says. These approaches can be combined, and some relational databases also support vector search.
+> Relational databases store structured records identified by keys, and retrieve them by querying the database for exact values or relationships. A vector store instead indexes [embeddings](Terminology.md#embeddings), so a query can find items that are similar in meaning even when they use different words. Unlike exact-value queries (for example, in SQL), vector search ranks approximate matches by similarity. The agent still needs the underlying source text to check what a match actually says. These approaches can be combined, and some relational databases also support vector search.
 
 ## Common Conventions
 

@@ -9,19 +9,19 @@ Now that we're speaking the same language, let's move on to architecture. At the
 
 ```mermaid
 flowchart TD
-  subgraph harness["Harness"]
+  subgraph harness["Harnesses"]
     direction LR
-    agent["Agent"]
-    web["Web Chat"]
+    agenta["Agent A"]
+    agentb["Agent B"]
   end
   tools@{ shape: st-rect, label: Tools}
   subgraph inference["Inference Server"]
     model["Model"]
   end
-  agent <-. A2A .-> web
+  agenta <-. A2A .-> agentb
   harness <-. MCP .-> tools
-  harness -. MIP .-> model
-  model -. MIP .-> harness
+  harness -. API .-> model
+  model -. API .-> harness
 ```
 
 ## AI Application Workflow
